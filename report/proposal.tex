@@ -1,0 +1,42 @@
+\documentclass[a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{CJK,CJKspace,CJKpunct}
+\usepackage{hyperref}
+\usepackage{fullpage}
+\pdfmapline{=unisong@Unicode@ <ipam.ttf}
+\begin{document}
+\begin{CJK}{UTF8}{zhsong}
+\begin{center}
+{\Large \textbf{CS 410 Final Project Proposal}}
+
+{\Large \textbf{Japanese Lyrics Reverse Search Engine}}
+
+Larry Resnik (lsresni2), Zack Bian
+
+June 13, 2014
+\end{center}
+\subsection*{About}
+We want to build a search engine that determines the original song that an inputted snippet of lyrics came from.
+\subsection*{Motivation}
+When you search for a song using snippets of lyrics online, a non-Japanese speaker has the problem of not being able to search effectively using Japanese or looking through Japanese web pages for their results. Those non-Japanese speakers get around this problem by searching the Internet using romaji, a representation of Japanese text using Latin characters. Unfortunately, this assumes that the song they are searching for has a variant online transliterated for them into romaji. These variations tend to be uploaded by fans of the songs as opposed to the composers themselves, so a romaji lyrics sheet may not be created for awhile or not at all.
+
+In order to address this problem, we want to build a search engine that scours Japanese song lyrics from the sites that composers deliver their songs on. This search engine will be as up-to-date as the song creator him/herself wants the song to be. Should we successfully find the song that the search engine user wants, we could tell the user the title of that song, in Japanese preferably, so that they may have a successful Googling of that song.
+\subsection*{Plans}
+Our MVP (Minimum Viable Product) will be a command line interface that takes lyrics as input. The lyrics can be any length long. They could be in Japanese, transliterated romaji, or translated English. We may need to support both Shift-JIS and UTF-8 text encodings simultaneously. The search engine will return a list of song titles with their related lyrics passages printed below them. Each song title is a link that points back to the original page where the search engine cached the page. For the purpose of being user-friendly to non-Japanese speakers, we will specifically state how to read the output of the search engine so that the users know where the title is (eg. "Title: シリウス").
+
+We will scour Piapro as our source at the very least.
+\subsection*{Stretch Goals}
+\begin{itemize}
+\item Multiple web sites. Piapro for Vocaloid and Touhou music. Anime Lyrics dot Com for Anime and Doujin music. Touhou Doujin CD no Kashi for Touhou music.
+\item Segmentation of words. English and romaji would be segmented by spaces, but Japanese could be segmented by kanji and kana. Anime Lyrics dot Com does not segment Japanese, so we would make a better search engine than theirs if we did.
+\item Checking for synonyms in Japanese lyrics. For example: 流れ星, ながれぼし, nagare boshi, and/or ｎａｇａｒｅ ｂｏｓｈｉ.
+\item Online interface to the search engine.
+\end{itemize}
+\subsection*{Web Sites}
+\begin{itemize}
+\item ピアプロ (Piapro): \url{http://piapro.jp/}
+\item Anime Lyrics dot Com: \url{http://www.animelyrics.com/}
+\item 東方同人ＣＤの歌詞 (Touhou Doujin CD no Kashi): \url{http://www31.atwiki.jp/touhoukashi/}
+\end{itemize}
+\end{CJK}
+\end{document}
