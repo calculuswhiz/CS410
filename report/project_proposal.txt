@@ -1,0 +1,55 @@
+CS 410 Final Project Proposal
+Japanese Lyrics Reverse Search Engine
+Larry Resnik (lsresni2), Zack Bian (zbian2)
+June 13, 2014
+
+[About]
+We want to build a search engine that determines the original song that an inputted snippet of lyrics came from.
+
+[Motivation]
+When you search for a song using snippets of lyrics online, a non-Japanese speaker has the problem of not being able to search effectively using Japanese or looking through Japanese web pages for their results. Those non-Japanese speakers get around this problem by searching the Internet using romaji, a representation of Japanese text using Latin characters. Unfortunately, this assumes that the song they are searching for has a variant online transliterated for them into romaji. These variations tend to be uploaded by fans of the songs as opposed to the composers themselves, so a romaji lyrics sheet may not be created for awhile or not at all.
+
+In order to address this problem, we want to build a search engine that scours Japanese song lyrics from the sites that composers deliver their songs on. This search engine will be as up-to-date as the song creator him/herself wants the song to be. Should we successfully find the song that the search engine user wants, we could tell the user the title of that song, in Japanese preferably, so that they may have a successful Googling of that song.
+
+[Plans]
+Our MVP (Minimum Viable Product) will be a command line interface that takes lyrics as input. The lyrics can be any length long. They could be in Japanese, transliterated romaji, or translated English. We may need to support both Shift-JIS and UTF-8 text encodings simultaneously. The search engine will return a list of song titles with their related lyrics passages printed below them. Each song title is a link that points back to the original page where the search engine cached the page. For the purpose of being user-friendly to non-Japanese speakers, we will specifically state how to read the output of the search engine so that the users know where the title is (eg. "Title: シリウス").
+
+We will scour Piapro as our source at the very least.
+
+[Techniques]
+What we will use is tentative, but Python 3 will be considered for its ease of use with Unicode characters (specifically for when we deal with Japanese text). Should HTML parsing be done, it made be done using the BeautifulSoup library for Python. However, BeautifulSoup may enforce the usage of Python 2. It is of little consequence. We may use C++ for text processing as well due to familiarity with the language.
+
+To scour all of the web pages, we will either hand-make a script to call wget, or we will use Python's urllib2. Either way, we will pause between all downloaded pages to avoid taxing the server.
+
+For indexing the pages we scour, we'll use Lucene because that seems to be the purpose of that library.
+
+[Usefulness]
+A couple good traits come about from search engines like this.
+* You can find the lyrics to your song and embed those lyrics into the song itself with tags. The music player could display these lyrics while you play the song and people can absorb the meaning of the song over multiple leisurely play throughs.
+* People who want to sing the song in karaoke can find the lyrics effectively.
+* When you find the source of the song, you can follow the creator of that song and possibly find more music that fits your tastes.
+* Bridging the language gap is a vital aspect of connecting people and things together through the Internet.
+
+[Timeline]
+June 8-14: Have initial web crawler done for at least one web site. This will give us a data set to work with.
+June 15-21: Have lyrics extracted from at least one web site. We will be learning Lucene in the meantime.
+June 22-28: Determine how to integrate Lucene into the picture. If time allows, work on a web crawler for another web site and determine how to segment Japanese text.
+June 29-July 5: Have Lucene working and producing output from command line.
+July 3: Midterm report.
+July 6-12: Create a web front-end to Lucene's indexing service.
+July 13-19: Implement features or make the front end look nice. Work on project report.
+July 20-26: Same as previous week.
+August 2: Project report.
+August 4/5: Project presentation.
+
+[Stretch Goals]
+* Multiple web sites. Piapro for Vocaloid and Touhou music. Anime Lyrics dot Com for Anime and Doujin music. Touhou Doujin CD no Kashi for Touhou music.
+* Segmentation of words. English and romaji would be segmented by spaces, but Japanese could be segmented by kanji and kana. Anime Lyrics dot Com does not segment Japanese, so we would make a better search engine than theirs if we did.
+* Checking for synonyms in Japanese lyrics. For example: 流れ星, ながれぼし, nagare boshi, and/or ｎａｇａｒｅ ｂｏｓｈｉ.
+* Online interface to the search engine.
+* String stemming for Japanese text. For example: 食べている → 食べる.
+
+[Web Sites]
+* ピアプロ (Piapro): http://piapro.jp/
+* Anime Lyrics dot Com: http://www.animelyrics.com/
+* 東方同人ＣＤの歌詞 (Touhou Doujin CD no Kashi): http://www31.atwiki.jp/touhoukashi/
