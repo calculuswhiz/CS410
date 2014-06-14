@@ -11,28 +11,34 @@ __doc__ = """Collects all links from Anime Lyrics dot Com's Song Index pages."""
 
 # Where to save the output of all of the crawled pages.
 DEFAULT_OUTPUT_PATH = normpath('../crawled/animelyrics/')
-DEFAULT_SONG_INDEX_PATH = normpath(DEFAULT_OUTPUT_PATH + sep + 'indices/')
+DEFAULT_SONG_INDEX_PATH = normpath(sep.join([DEFAULT_OUTPUT_PATH, 'indices/']))
 
-
-def crop_index_content(alltext):
-    """Removes extraneous information around the list of songs."""
-    pass
 
 def get_song_list(filename, regex):
     """Gets a list of song URLs for Anime Lyrics from a song index page."""
-    soup = BeautifulSoup(filename)
-    # Go inside of their layout table's layout table's first table-row.
-    # Yes, they have nested layout tables.
-    soup = soup.body.table.table.tr
-    # Find all anchor tags.
-    anchors = soup('a')
-    anchors = [anchor['href'] for anchor in anchors]
+    filename = normpath(sep.join([DEFAULT_SONG_INDEX_PATH, filename]))
+    with open(filename, 'r') as infile:
+        alltext = infile.read()
+    soup = BeautifulSoup(alltext)
+    # Go inside of their layout table's first table-row.
+    # Find all anchor tags with an "href" attribute.
+    # Do not accept URLs for javascript (they use "#" in the URL).
+    # Each link we want begins with "regex". eg. "anime/nichijou" for "anime".
+    anchors = [anchor['href'] for anchor in soup.body.table.tr('a') \
+        if anchor.has_attr('href') and '#' not in anchor['href'] and \
+        anchor['href'].startswith(regex)]
+    return anchors
+
+def get_all_songs():
+    """Gets a list of all song URLs from Anime Lyrics dot Com."""
+    print('Parsing Anime Lyrics index files.')
+    song_list = []
+    for filename in listdir(DEFAULT_SONG_INDEX_PATH):
+        song_list += get_song_list(filename, filename[:filename.find('.')])
+    return song_list
 
 def main():
-    print('Ready to parse Anime Lyrics index files.')
-    for filename in listdir(DEFAULT_SONG_INDEX_PATH):
-        print(filename)
-    get_song_list('anime.html', 'anime')
+    song_list = get_all_songs()
 
 if __name__ == '__main__':
     main()
