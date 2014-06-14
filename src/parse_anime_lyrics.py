@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from os import sep, listdir
-from os.path import normpath
+from os import listdir
+from os.path import join as path_join
 import re
 from utils_and_defs import *
 from bs4 import BeautifulSoup
@@ -10,13 +10,11 @@ from bs4 import BeautifulSoup
 __doc__ = """Collects all links from Anime Lyrics dot Com's Song Index pages."""
 
 # Where to save the output of all of the crawled pages.
-DEFAULT_OUTPUT_PATH = normpath('../crawled/animelyrics/')
-DEFAULT_SONG_INDEX_PATH = normpath(sep.join([DEFAULT_OUTPUT_PATH, 'indices/']))
 
 
 def get_song_list(filename, regex):
     """Gets a list of song URLs for Anime Lyrics from a song index page."""
-    filename = normpath(sep.join([DEFAULT_SONG_INDEX_PATH, filename]))
+    filename = path_join(DEFAULT_SONG_INDEX_PATH_AL, filename)
     with open(filename, 'r') as infile:
         alltext = infile.read()
     soup = BeautifulSoup(alltext)
@@ -29,16 +27,17 @@ def get_song_list(filename, regex):
         anchor['href'].startswith(regex)]
     return anchors
 
-def get_all_songs():
+def get_all_songs_from_index():
     """Gets a list of all song URLs from Anime Lyrics dot Com."""
     print('Parsing Anime Lyrics index files.')
     song_list = []
-    for filename in listdir(DEFAULT_SONG_INDEX_PATH):
+    # Get the list of URLs from the top index page.
+    # These URLs point to albums of the form "anime/nichijou" under "anime".
+    for filename in listdir(DEFAULT_SONG_INDEX_PATH_AL):
         song_list += get_song_list(filename, filename[:filename.find('.')])
     return song_list
 
-def main():
-    song_list = get_all_songs()
+main = get_all_songs_from_index
 
 if __name__ == '__main__':
     main()
