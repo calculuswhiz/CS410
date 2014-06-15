@@ -9,6 +9,9 @@ import urllib2
 
 __doc__ = """Utilities and definitions for all of our codebase."""
 
+# Whether or not to print output.
+DEBUG_BE_QUIET = False
+
 # How long to sleep between calls to the web site.
 SLEEP_SEC_MIN = 1
 SLEEP_SEC_MAX = 2
@@ -37,7 +40,7 @@ def get_page_content(url):
         sleep(randint(SLEEP_SEC_MIN, SLEEP_SEC_MAX))
         page = urllib2.urlopen(url)
         content = page.read()
-    except URLError:
+    except urllib2.URLError:
         print('Error: Could not retrieve URL {}'.format(url))
     except KeyboardInterrupt:
         print('Forced termination by keyboard input.')

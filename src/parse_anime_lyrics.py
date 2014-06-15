@@ -22,19 +22,25 @@ def get_song_list(filename, regex):
     # Find all anchor tags with an "href" attribute.
     # Do not accept URLs for javascript (they use "#" in the URL).
     # Each link we want begins with "regex". eg. "anime/nichijou" for "anime".
+    # Anime Lyrics has bad links in their name that start with "del".
+    #   Remove those links from our list.
     anchors = [anchor['href'] for anchor in soup.body.table.tr('a') \
         if anchor.has_attr('href') and '#' not in anchor['href'] and \
-        anchor['href'].startswith(regex)]
+        anchor['href'].startswith(regex) and \
+        not anchor.contents[0].startswith('del')]
     return anchors
 
-def get_all_songs_from_index():
+def get_all_songs_from_index(quiet=True):
     """Gets a list of all song URLs from Anime Lyrics dot Com."""
-    print('Parsing Anime Lyrics index files.')
+    if not quiet:
+        print('Parsing Anime Lyrics index files.')
     song_list = []
     # Get the list of URLs from the top index page.
     # These URLs point to albums of the form "anime/nichijou" under "anime".
     for filename in listdir(DEFAULT_SONG_INDEX_PATH_AL):
         song_list += get_song_list(filename, filename[:filename.find('.')])
+    if not quiet:
+        print('Got {} album pages.'.format(len(song_list)))
     return song_list
 
 main = get_all_songs_from_index
