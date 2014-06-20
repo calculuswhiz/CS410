@@ -2,7 +2,7 @@
 # coding: utf-8
 
 from os import makedirs
-from os.path import normpath, join as path_join
+from os.path import normpath, isfile, join as path_join
 from time import sleep, time
 from random import randint
 import urllib2
@@ -52,7 +52,8 @@ def retrieve_indices():
     for url in TOP_LEVEL_PAGES:
         try:
             save_url_locally(''.join([HOME_PAGE_AL, url, '/']),
-                path_join(DEFAULT_SONG_INDEX_PATH_AL, url + '.html'))
+                normpath(path_join(DEFAULT_SONG_INDEX_PATH_AL,
+                    url + '.html')))
         except KeyboardInterrupt:
             break
 
@@ -62,6 +63,8 @@ def retrieve_albums(relative_urls, quiet=True, max_retries=3):
     If you want to save a section of URLs, pass a slice of relative_urls.
     """
     
+    if not quiet:
+        print('Fetching all top level index pages (genres) from Anime Lyrics.')
     debug_song_counter = 0
     for rel_url in relative_urls:
         create_dir_recursively(path_join(DEFAULT_OUTPUT_PATH_AL, rel_url))
@@ -75,8 +78,10 @@ def retrieve_albums(relative_urls, quiet=True, max_retries=3):
         
         try:
             while not success and retry_count > 0:
-                success = save_url_locally(''.join([HOME_PAGE_AL, rel_url, '/']),
-                    path_join(DEFAULT_OUTPUT_PATH_AL, rel_url, 'index.html'))
+                success = save_url_locally(''.join(
+                    [HOME_PAGE_AL, rel_url, '/']),
+                    normpath(path_join(DEFAULT_OUTPUT_PATH_AL, rel_url,
+                    'index.html')))
                 retry_count -= 1
         except KeyboardInterrupt:
             # Stop running the program.
@@ -85,23 +90,36 @@ def retrieve_albums(relative_urls, quiet=True, max_retries=3):
         if retry_count <= 0 and not success:
             print('Failed to fetch song: {}'.format(rel_url))
 
+def trim_album_pages():
+    """Removes junk from album pages and saves them in nice.html
+    
+    This is a one-time use function that will trim every crawled
+    album page stored on disk.
+    """
+    
+    from os import listdir
+    from os.path import isfile
+    
+    # THIS IS TEST MATERIAL.
+    # The function does not behave as suggested yet.
+    for genre in TOP_LEVEL_PAGES:
+        path = normpath(path_join(DEFAULT_OUTPUT_PATH_AL, genre))
+        for subpath in listdir(path)[:3]:
+            print(path, subpath, genre)
+
 def main(quiet=True):
     if not quiet:
         print('Making output directories for Anime Lyrics.')
     create_dir_recursively(DEFAULT_OUTPUT_PATH_AL)
-    create_dir_recursively(DEFAULT_SONG_INDEX_PATH_AL)
-    if not quiet:
-        print('Fetching all top level index pages (genres) from Anime Lyrics.')
+    create_dir_recursively(DEFAULT_SONG_INDEX_PATH_AL)\
     #retrieve_indices()
-    # Save all of the pages from these URLs.
-    if not quiet:
-        print('Fetching all album web pages from Anime Lyrics.')
-    song_list = parse_anime_lyrics.get_all_songs_from_index()
-    #print(song_list[470:485]);return
-    retrieve_albums(song_list, False)
+    #song_list = parse_anime_lyrics.get_all_songs_from_index()
+    #retrieve_albums(song_list, False)
+    trim_album_pages()
     
     if not quiet:
-        print('This script took {} seconds to run.'.format(time() - START_TIME))
+        print('This script took {} seconds to run.'.format(
+            time() - START_TIME))
 
 
 if __name__ == '__main__':

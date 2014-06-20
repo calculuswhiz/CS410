@@ -24,6 +24,10 @@ HOME_PAGE_AL = 'http://www.animelyrics.com/'
 DEFAULT_OUTPUT_PATH_AL = normpath('../crawled/animelyrics/')
 DEFAULT_SONG_INDEX_PATH_AL = path_join(DEFAULT_OUTPUT_PATH_AL, 'indices/')
 
+# The parser that BeautifulSoup will use for reading the web pages.
+# http://www.crummy.com/software/BeautifulSoup/bs4/doc/#parser-installation
+BS_PARSER = 'lxml'
+
 
 def create_dir_recursively(path):
     """Creates the passed directory if it does not already exist."""
