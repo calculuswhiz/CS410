@@ -28,6 +28,9 @@ DEFAULT_SONG_INDEX_PATH_AL = path_join(DEFAULT_OUTPUT_PATH_AL, 'indices/')
 # http://www.crummy.com/software/BeautifulSoup/bs4/doc/#parser-installation
 BS_PARSER = 'lxml'
 
+# Keep track of all errors and write them out when the program ends.
+full_error_report = ''
+
 
 def create_dir_recursively(path):
     """Creates the passed directory if it does not already exist."""

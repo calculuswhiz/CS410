@@ -8,6 +8,7 @@ from random import randint
 import urllib2
 from utils_and_defs import *
 import parse_anime_lyrics
+from bs4 import BeautifulSoup
 
 __doc__ = """Crawls Anime Lyrics dot Com for all of its pages.
 
@@ -103,23 +104,51 @@ def trim_album_pages():
     # THIS IS TEST MATERIAL.
     # The function does not behave as suggested yet.
     for genre in TOP_LEVEL_PAGES:
-        path = normpath(path_join(DEFAULT_OUTPUT_PATH_AL, genre))
-        for subpath in listdir(path)[:3]:
-            print(path, subpath, genre)
+        genre_path = normpath(path_join(DEFAULT_OUTPUT_PATH_AL, genre))
+        for album in listdir(genre_path):
+            fullpath = normpath(path_join(
+                genre_path, album, 'index.html'))
+            with open(fullpath, 'r') as infile:
+                text = infile.read()
+            trimmed_text = parse_anime_lyrics.remove_text_junk(text)
+            if trimmed_text:
+                nicepath = normpath(path_join(
+                    genre_path, album, 'nice.html'))
+                soup = BeautifulSoup(trimmed_text)
+                with open(nicepath, 'w') as outfile:
+                    outfile.write(soup.prettify('utf-8'))
+            else:
+                error = 'Failed to trim {}.'.format(fullpath)
+                print(error)
+                global full_error_report
+                full_error_report += '\n' + error
 
 def main(quiet=True):
-    if not quiet:
-        print('Making output directories for Anime Lyrics.')
-    create_dir_recursively(DEFAULT_OUTPUT_PATH_AL)
-    create_dir_recursively(DEFAULT_SONG_INDEX_PATH_AL)\
-    #retrieve_indices()
-    #song_list = parse_anime_lyrics.get_all_songs_from_index()
-    #retrieve_albums(song_list, False)
-    trim_album_pages()
-    
-    if not quiet:
-        print('This script took {} seconds to run.'.format(
-            time() - START_TIME))
+    try:
+        if not quiet:
+            print('Making output directories for Anime Lyrics.')
+        create_dir_recursively(DEFAULT_OUTPUT_PATH_AL)
+        create_dir_recursively(DEFAULT_SONG_INDEX_PATH_AL)\
+        #retrieve_indices()
+        #song_list = parse_anime_lyrics.get_all_songs_from_index()
+        #retrieve_albums(song_list, False)
+        trim_album_pages()
+    except KeyboardInterrupt:
+        pass
+    except:
+        from sys import exc_info
+        global full_error_report
+        full_error_report += 'Unexpected error: {}\n{}\n{}\n'.format(
+            exc_info()[0], exc_info()[1], exc_info()[2])
+        if full_error_report:
+            with open('error.log', 'w') as error_file:
+                error_file.write(full_error_report)
+        print('An error occured. Please read error.log.')
+        raise
+    finally:
+        if not quiet:
+            print('This script took {} seconds to run.'.format(
+                time() - START_TIME))
 
 
 if __name__ == '__main__':
