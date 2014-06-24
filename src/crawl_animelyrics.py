@@ -91,7 +91,7 @@ def retrieve_albums(relative_urls, quiet=True, max_retries=3):
         if retry_count <= 0 and not success:
             print('Failed to fetch song: {}'.format(rel_url))
 
-def trim_album_pages():
+def trim_local_album_pages():
     """Removes junk from album pages and saves them in nice.html
     
     This is a one-time use function that will trim every crawled
@@ -101,13 +101,15 @@ def trim_album_pages():
     from os import listdir
     from os.path import isfile
     
-    # THIS IS TEST MATERIAL.
-    # The function does not behave as suggested yet.
     for genre in TOP_LEVEL_PAGES:
         genre_path = normpath(path_join(DEFAULT_OUTPUT_PATH_AL, genre))
         for album in listdir(genre_path):
             fullpath = normpath(path_join(
                 genre_path, album, 'index.html'))
+            if not isfile(fullpath):
+                error = 'File does not exist: {}.'.format(fullpath)
+                continue
+            
             with open(fullpath, 'r') as infile:
                 text = infile.read()
             trimmed_text = parse_anime_lyrics.remove_text_junk(text)
@@ -132,13 +134,13 @@ def main(quiet=True):
         #retrieve_indices()
         #song_list = parse_anime_lyrics.get_all_songs_from_index()
         #retrieve_albums(song_list, False)
-        trim_album_pages()
+        trim_local_album_pages()
     except KeyboardInterrupt:
         pass
     except:
         from sys import exc_info
         global full_error_report
-        full_error_report += 'Unexpected error: {}\n{}\n{}\n'.format(
+        full_error_report += '\nUnexpected error: {}\n{}\n{}\n'.format(
             exc_info()[0], exc_info()[1], exc_info()[2])
         if full_error_report:
             with open('error.log', 'w') as error_file:
