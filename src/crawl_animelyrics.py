@@ -59,9 +59,10 @@ def retrieve_indices():
             break
 
 def retrieve_albums(relative_urls, quiet=True, max_retries=3):
-    """Saves album pages from Anime Lyrics from the passed relative URLs.
+    """Saves album pages from Anime Lyrics from relative_urls.
     
-    If you want to save a section of URLs, pass a slice of relative_urls.
+    Each page is saved in index.html after being trimmed.
+    If you want to save a section of URLs, slice relative_urls.
     """
     
     if not quiet:
@@ -91,6 +92,54 @@ def retrieve_albums(relative_urls, quiet=True, max_retries=3):
         if retry_count <= 0 and not success:
             print('Failed to fetch song: {}'.format(rel_url))
 
+def trim_album(text, fullpath, error_report, print_errors=False):
+    """Returns the album page with unwanted text removed from it.
+    
+    @param text: All of the web page's text as one string.
+    
+    Returns the processed text on success or an empty string otherwise.
+    """
+    
+    trimmed_text = ''
+    if not text:
+        # This is an empty file. Do not parse it.
+        error_report.add_error(
+            'File is empty: {}.\n'.format(fullpath),
+            also_print=print_errors)
+        return trimmed_text
+    
+    charset_tag = extract_meta_charset_tag(text)
+    if charset_tag:
+        # Got the meta tag, so trim out more unwanted text.
+        trimmed_text, songs_found = \
+            parse_anime_lyrics.remove_text_junk(text)
+    else:
+        # The meta tag is not important, so we will continue.
+        # Log the failure anyways.
+        error_report.add_error(
+            'Failed to extract the charset of {}.\n'.format(
+            fullpath), also_print=print_errors)
+    
+    if trimmed_text or (not trimmed_text and not songs_found):
+        if not songs_found:
+            # Trim the page despite having no songs.
+            # Make a warning in the error log.
+            error_report.add_error(
+                'Trimmed a songless page: {}.\n'.format(
+                fullpath), also_print=print_errors)
+        
+        # We have successfully trimmed the text.
+        if charset_tag:
+            # Add the meta tag if we have it.
+            trimmed_text = '\n'.join([charset_tag,trimmed_text])
+    else:
+        # Trimming the text failed. Output an error report.
+        error_report.add_error(
+            'Failed to trim {}.\n'.format(fullpath),
+            also_print=print_errors)
+    
+    return trimmed_text
+
 def trim_local_album_pages(error_report, print_errors=False):
     """Removes junk from album pages and saves them in nice.html
     
@@ -117,49 +166,15 @@ def trim_local_album_pages(error_report, print_errors=False):
             
             with open(fullpath, 'r') as infile:
                 text = infile.read()
-            
-            if not text:
-                # This is an empty file. Do not parse it.
-                error_report.add_error(
-                    'File is empty: {}.\n'.format(fullpath),
-                    also_print=print_errors)
-                continue
-            
-            charset_tag = extract_meta_charset_tag(text)
-            if charset_tag:
-                # Got the meta tag, so trim out more unwanted text.
-                trimmed_text, songs_found = \
-                    parse_anime_lyrics.remove_text_junk(text)
-            else:
-                # The meta tag is not important, so we will continue.
-                # Log the failure anyways.
-                error_report.add_error(
-                    'Failed to extract the charset of {}.\n'.format(
-                    fullpath), also_print=print_errors)
-            
-            if trimmed_text or (not trimmed_text and not songs_found):
-                if not songs_found:
-                    # Trim the page despite having no songs.
-                    # Make a warning in the error log.
-                    error_report.add_error(
-                        'Trimmed a songless page: {}.\n'.format(
-                        fullpath), also_print=print_errors)
-                
-                # We have successfully trimmed the text.
+            text = trim_album(text, fullpath, error_report,
+                print_errors)
+            if text:
+                soup = BeautifulSoup(text)
                 # Save the cleaned up page locally.
                 nicepath = normpath(path_join(
                     genre_path, album, 'nice.html'))
-                if charset_tag:
-                    # Add the meta tag if we have it.
-                    trimmed_text = '\n'.join([charset_tag,trimmed_text])
-                soup = BeautifulSoup(trimmed_text)
                 with open(nicepath, 'w') as outfile:
                     outfile.write(soup.prettify('utf-8'))
-            else:
-                # Trimming the text failed. Output an error report.
-                error_report.add_error(
-                    'Failed to trim {}.\n'.format(fullpath),
-                    also_print=print_errors)
 
 def main(quiet=True):
     error_report = ErrorReport()
