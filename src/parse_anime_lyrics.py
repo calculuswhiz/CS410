@@ -47,6 +47,7 @@ def remove_text_junk(text):
     Returns the processed text on success or an empty string otherwise.
     """
     
+    no_albums = False
     # Find the second h1 tag and save only up to that much.
     index_begin = text.find('<h1')
     if index_begin < 0:
@@ -60,6 +61,7 @@ def remove_text_junk(text):
     index_albums = text.find(ALBUM_LIST_START, index_begin)
     if index_albums < 0:
         text = ''
+        no_albums = True
     # Find the footer by its tell-tale text beyond the album list.
     index_end = text.find(FOOTER_TEXT, index_albums)
     if index_end < 0:

@@ -91,7 +91,7 @@ def retrieve_albums(relative_urls, quiet=True, max_retries=3):
         if retry_count <= 0 and not success:
             print('Failed to fetch song: {}'.format(rel_url))
 
-def trim_local_album_pages():
+def trim_local_album_pages(error_report=None):
     """Removes junk from album pages and saves them in nice.html
     
     This is a one-time use function that will trim every crawled
@@ -101,31 +101,41 @@ def trim_local_album_pages():
     from os import listdir
     from os.path import isfile
     
+    # Loop through all of Anime Lyrics' genres to produce path names.
     for genre in TOP_LEVEL_PAGES:
         genre_path = normpath(path_join(DEFAULT_OUTPUT_PATH_AL, genre))
+        # Loop through all albums that exist in each genre.
         for album in listdir(genre_path):
+            # Get the album web page stored as index.html .
             fullpath = normpath(path_join(
                 genre_path, album, 'index.html'))
             if not isfile(fullpath):
-                error = 'File does not exist: {}.'.format(fullpath)
+                if error_report is not None:
+                    error_report.add_error(
+                        'File does not exist: {}.\n'.format(fullpath),
+                        also_print=True)
                 continue
             
             with open(fullpath, 'r') as infile:
                 text = infile.read()
             trimmed_text = parse_anime_lyrics.remove_text_junk(text)
             if trimmed_text:
+                # We have successfully trimmed the text.
+                # Save the cleaned up page locally.
                 nicepath = normpath(path_join(
                     genre_path, album, 'nice.html'))
                 soup = BeautifulSoup(trimmed_text)
                 with open(nicepath, 'w') as outfile:
                     outfile.write(soup.prettify('utf-8'))
             else:
-                error = 'Failed to trim {}.'.format(fullpath)
-                print(error)
-                global full_error_report
-                full_error_report += '\n' + error
+                # Trimming the text failed. Output an error report.
+                if error_report is not None:
+                    error_report.add_error(
+                        'Failed to trim {}.\n'.format(fullpath),
+                        also_print=True)
 
 def main(quiet=True):
+    error_report = ErrorReport()
     try:
         if not quiet:
             print('Making output directories for Anime Lyrics.')
@@ -134,20 +144,16 @@ def main(quiet=True):
         #retrieve_indices()
         #song_list = parse_anime_lyrics.get_all_songs_from_index()
         #retrieve_albums(song_list, False)
-        trim_local_album_pages()
+        trim_local_album_pages(error_report)
     except KeyboardInterrupt:
         pass
     except:
         from sys import exc_info
-        global full_error_report
-        full_error_report += '\nUnexpected error: {}\n{}\n{}\n'.format(
-            exc_info()[0], exc_info()[1], exc_info()[2])
-        if full_error_report:
-            with open('error.log', 'w') as error_file:
-                error_file.write(full_error_report)
-        print('An error occured. Please read error.log.')
-        raise
+        error_report.add('Unexpected error of type {}\n{}\n{}\n'.format(
+            exc_info()[0], exc_info()[1], exc_info()[2]),
+            also_print=True)
     finally:
+        error_report.write_out()
         if not quiet:
             print('This script took {} seconds to run.'.format(
                 time() - START_TIME))

@@ -29,8 +29,23 @@ DEFAULT_SONG_INDEX_PATH_AL = path_join(DEFAULT_OUTPUT_PATH_AL, 'indices/')
 BS_PARSER = 'lxml'
 
 # Keep track of all errors and write them out when the program ends.
-full_error_report = ''
-
+class ErrorReport(object):
+    """Stores all errors that occurred and writes them to disk."""
+    
+    def __init__(my):
+        my.report = ''
+    
+    def add_error(my, text, also_print=False):
+        """Adds a line of text to the error report."""
+        my.report += text
+        if also_print:
+            print(text.strip())
+    
+    def write_out(my, filename='error.log'):
+        """Writes the error report out to disk if there were errors."""
+        if my.report:
+            with open(filename, 'w') as error_file:
+                error_file.write(my.report)
 
 def create_dir_recursively(path):
     """Creates the passed directory if it does not already exist."""
@@ -38,7 +53,6 @@ def create_dir_recursively(path):
         makedirs(path)
     except OSError:
         pass
-
 
 def get_page_content(url):
     """Sleeps, then gets the HTML page from a URL."""
