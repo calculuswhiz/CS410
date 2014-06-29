@@ -91,7 +91,7 @@ def retrieve_albums(relative_urls, quiet=True, max_retries=3):
         if retry_count <= 0 and not success:
             print('Failed to fetch song: {}'.format(rel_url))
 
-def trim_local_album_pages(error_report=None):
+def trim_local_album_pages(error_report, print_errors=False):
     """Removes junk from album pages and saves them in nice.html
     
     This is a one-time use function that will trim every crawled
@@ -110,29 +110,56 @@ def trim_local_album_pages(error_report=None):
             fullpath = normpath(path_join(
                 genre_path, album, 'index.html'))
             if not isfile(fullpath):
-                if error_report is not None:
-                    error_report.add_error(
-                        'File does not exist: {}.\n'.format(fullpath),
-                        also_print=True)
+                error_report.add_error(
+                    'File does not exist: {}.\n'.format(fullpath),
+                    also_print=print_errors)
                 continue
             
             with open(fullpath, 'r') as infile:
                 text = infile.read()
-            trimmed_text = parse_anime_lyrics.remove_text_junk(text)
-            if trimmed_text:
+            
+            if not text:
+                # This is an empty file. Do not parse it.
+                error_report.add_error(
+                    'File is empty: {}.\n'.format(fullpath),
+                    also_print=print_errors)
+                continue
+            
+            charset_tag = extract_meta_charset_tag(text)
+            if charset_tag:
+                # Got the meta tag, so trim out more unwanted text.
+                trimmed_text, songs_found = \
+                    parse_anime_lyrics.remove_text_junk(text)
+            else:
+                # The meta tag is not important, so we will continue.
+                # Log the failure anyways.
+                error_report.add_error(
+                    'Failed to extract the charset of {}.\n'.format(
+                    fullpath), also_print=print_errors)
+            
+            if trimmed_text or (not trimmed_text and not songs_found):
+                if not songs_found:
+                    # Trim the page despite having no songs.
+                    # Make a warning in the error log.
+                    error_report.add_error(
+                        'Trimmed a songless page: {}.\n'.format(
+                        fullpath), also_print=print_errors)
+                
                 # We have successfully trimmed the text.
                 # Save the cleaned up page locally.
                 nicepath = normpath(path_join(
                     genre_path, album, 'nice.html'))
+                if charset_tag:
+                    # Add the meta tag if we have it.
+                    trimmed_text = '\n'.join([charset_tag,trimmed_text])
                 soup = BeautifulSoup(trimmed_text)
                 with open(nicepath, 'w') as outfile:
                     outfile.write(soup.prettify('utf-8'))
             else:
                 # Trimming the text failed. Output an error report.
-                if error_report is not None:
-                    error_report.add_error(
-                        'Failed to trim {}.\n'.format(fullpath),
-                        also_print=True)
+                error_report.add_error(
+                    'Failed to trim {}.\n'.format(fullpath),
+                    also_print=print_errors)
 
 def main(quiet=True):
     error_report = ErrorReport()
@@ -144,14 +171,16 @@ def main(quiet=True):
         #retrieve_indices()
         #song_list = parse_anime_lyrics.get_all_songs_from_index()
         #retrieve_albums(song_list, False)
-        trim_local_album_pages(error_report)
+        trim_local_album_pages(error_report, not quiet)
     except KeyboardInterrupt:
         pass
     except:
         from sys import exc_info
-        error_report.add('Unexpected error of type {}\n{}\n{}\n'.format(
+        error_report.add_error(
+            'Unexpected error of type {}\n{}\n{}\n'.format(
             exc_info()[0], exc_info()[1], exc_info()[2]),
-            also_print=True)
+            also_print=False)
+        raise
     finally:
         error_report.write_out()
         if not quiet:

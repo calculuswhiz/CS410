@@ -44,10 +44,11 @@ def get_albums(fullpath, regex):
 def remove_text_junk(text):
     """Removes the header and footer of Anime Lyrics album pages.
     
-    Returns the processed text on success or an empty string otherwise.
+    Returns the a tuple of (processed_text, songs_found).
+    On failure, processed_text is an empty string.
     """
     
-    no_albums = False
+    songs_found = True
     # Find the second h1 tag and save only up to that much.
     index_begin = text.find('<h1')
     if index_begin < 0:
@@ -61,7 +62,7 @@ def remove_text_junk(text):
     index_albums = text.find(ALBUM_LIST_START, index_begin)
     if index_albums < 0:
         text = ''
-        no_albums = True
+        songs_found = False
     # Find the footer by its tell-tale text beyond the album list.
     index_end = text.find(FOOTER_TEXT, index_albums)
     if index_end < 0:
@@ -69,7 +70,7 @@ def remove_text_junk(text):
     # Remove all unnecessary text.
     if index_begin >= 0 and index_end >= 0:
         text = text[index_begin : index_end]
-    return text
+    return (text, songs_found)
 
 def get_all_songs_from_index(quiet=True):
     """Gets a list of all song URLs from Anime Lyrics dot Com."""

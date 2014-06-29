@@ -5,6 +5,7 @@ from os import makedirs
 from os.path import normpath, isdir, join as path_join
 from time import sleep, time
 from random import randint
+import re
 import urllib2
 
 __doc__ = """Utilities and definitions for all of our codebase."""
@@ -27,6 +28,10 @@ DEFAULT_SONG_INDEX_PATH_AL = path_join(DEFAULT_OUTPUT_PATH_AL, 'indices/')
 # The parser that BeautifulSoup will use for reading the web pages.
 # http://www.crummy.com/software/BeautifulSoup/bs4/doc/#parser-installation
 BS_PARSER = 'lxml'
+
+# The regex that looks for the meta tag which states the file encoding.
+charset_regex = re.compile('<meta .*charset=.*>',
+    re.UNICODE | re.IGNORECASE)
 
 # Keep track of all errors and write them out when the program ends.
 class ErrorReport(object):
@@ -71,3 +76,19 @@ def get_page_content(url):
         from sys import exc_info
         print('Unexpected error:', exc_info()[0])
     return content
+
+def extract_meta_charset_tag(text):
+    """Looks for and extracts the <meta ... charset=""> text.
+    
+    It should look like the following form.
+    <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    Saving this text is important for knowing the file encoding.
+    
+    Returns the meta tag on success or an empty string on failure.
+    """
+    
+    meta_tag = ''
+    match = charset_regex.search(text)
+    if match:
+        meta_tag = text[match.start() : match.end()]
+    return meta_tag
