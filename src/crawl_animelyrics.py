@@ -58,18 +58,21 @@ def retrieve_indices():
         except KeyboardInterrupt:
             break
 
-def retrieve_albums(relative_urls, quiet=True, max_retries=3):
+def retrieve_albums(relative_urls, error_report, quiet=True, max_retries=3):
     """Saves album pages from Anime Lyrics from relative_urls.
     
     Each page is saved in index.html after being trimmed.
     If you want to save a section of URLs, slice relative_urls.
     """
     
+    print_errors = not quiet
     if not quiet:
-        print('Fetching all top level index pages (genres) from Anime Lyrics.')
+        print('Fetching Anime Lyrics top level index pages (genres).')
     debug_song_counter = 0
     for rel_url in relative_urls:
-        create_dir_recursively(path_join(DEFAULT_OUTPUT_PATH_AL, rel_url))
+        output_path = path_join(DEFAULT_OUTPUT_PATH_AL, rel_url)
+        create_dir_recursively(output_path)
+        url = ''.join([HOME_PAGE_AL, rel_url, '/'])
         retry_count = max_retries
         success = False
         if not quiet:
@@ -80,10 +83,8 @@ def retrieve_albums(relative_urls, quiet=True, max_retries=3):
         
         try:
             while not success and retry_count > 0:
-                success = save_url_locally(''.join(
-                    [HOME_PAGE_AL, rel_url, '/']),
-                    normpath(path_join(DEFAULT_OUTPUT_PATH_AL, rel_url,
-                    'index.html')))
+                text = get_page_content(url)
+                success = text is not None
                 retry_count -= 1
         except KeyboardInterrupt:
             # Stop running the program.
@@ -91,8 +92,21 @@ def retrieve_albums(relative_urls, quiet=True, max_retries=3):
         
         if retry_count <= 0 and not success:
             print('Failed to fetch song: {}'.format(rel_url))
+        else:
+            fullpath = normpath(path_join(
+                DEFAULT_OUTPUT_PATH_AL, rel_url, 'index.html'))
+            # Trim the content.
+            trimmed_text = trim_album(text, fullpath, error_report,
+                print_errors)
+            if trimmed_text:
+                text = trimmed_text
+            soup = BeautifulSoup(text)
+            # Save the cleaned up page locally.
+            nicepath = normpath(path_join(output_path, 'index.html'))
+            with open(nicepath, 'w') as outfile:
+                outfile.write(soup.prettify('utf-8'))
 
-def trim_album(text, fullpath, error_report, print_errors=False):
+def trim_album(text, fullpath, error_report, quiet=True):
     """Returns the album page with unwanted text removed from it.
     
     @param text: All of the web page's text as one string.
@@ -100,6 +114,7 @@ def trim_album(text, fullpath, error_report, print_errors=False):
     Returns the processed text on success or an empty string otherwise.
     """
     
+    print_errors = not quiet
     trimmed_text = ''
     if not text:
         # This is an empty file. Do not parse it.
@@ -140,7 +155,7 @@ def trim_album(text, fullpath, error_report, print_errors=False):
     
     return trimmed_text
 
-def trim_local_album_pages(error_report, print_errors=False):
+def trim_local_album_pages(error_report, quiet=True):
     """Removes junk from album pages and saves them in nice.html
     
     This is a one-time use function that will trim every crawled
@@ -150,6 +165,7 @@ def trim_local_album_pages(error_report, print_errors=False):
     from os import listdir
     from os.path import isfile
     
+    print_errors = not quiet
     # Loop through all of Anime Lyrics' genres to produce path names.
     for genre in TOP_LEVEL_PAGES:
         genre_path = normpath(path_join(DEFAULT_OUTPUT_PATH_AL, genre))
@@ -184,9 +200,9 @@ def main(quiet=True):
         create_dir_recursively(DEFAULT_OUTPUT_PATH_AL)
         create_dir_recursively(DEFAULT_SONG_INDEX_PATH_AL)\
         #retrieve_indices()
-        #song_list = parse_anime_lyrics.get_all_songs_from_index()
-        #retrieve_albums(song_list, False)
-        trim_local_album_pages(error_report, not quiet)
+        song_list = parse_anime_lyrics.get_all_songs_from_index()
+        retrieve_albums(song_list, error_report, quiet)
+        #trim_local_album_pages(error_report, quiet)
     except KeyboardInterrupt:
         pass
     except:
