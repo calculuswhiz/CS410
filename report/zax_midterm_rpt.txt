@@ -1,0 +1,18 @@
+The members of this group remains the same.
+* Larry Resnik: lsresni2
+* Zach Bian: zbian2
+
+Our group has accomplished the following things.
+* Decided on a plan of attack for crawling both Anime Lyrics dot Com and Piapro.
+* Genres (top-most level) and album pages (second level) successfully retrieved from Anime Lyrics dot Com. Song pages (third/final level) not yet retrieved and still need to be extracted from album pages, but it is assumed to be a simple retrieval of anchor tags.
+* Album pages are stripped of useless text before being stored locally.
+* Six genre pages saved.
+* ~5,000 pages crawled and stored locally.
+
+Zach:
+* Currently writing a crawler (C++) for piapro.
+    * Made observations about its site structure to facilitate this. (URL, html sources, error messages, etc.)
+* Found libraries for parsing html and dealing with UTF-8 chars. (piapro is in UTF-8 encoding, fortunately)
+
+Significant changes:
+* None
