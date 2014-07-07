@@ -16,19 +16,16 @@ int main()
     string testString;  // Regular string buffer for std:: functions.    
     ifstream myfile("page1.html");
     
-    RefPtr<Regex> regex = Regex::create("<a href=\"/t/.*?>"/*, G_REGEX_NEWLINE_LF, G_REGEX_MATCH_NEWLINE_LF*/);   // Destroy?
-    MatchInfo miTest;   // Destroy
-    
-    int i, start, end;
+    RefPtr<Regex> regex = Regex::create("(?<=/t/).{4}(?=\")");
+    MatchInfo miTest;
     
     while( getline(myfile, testString) )
     {
-        i=0;
         regex->match(ustring(testString), miTest);
         
         while(miTest.matches())
         {
-            for(i=0; i<miTest.get_match_count(); i++)
+            for(int i=0; i<miTest.get_match_count(); i++)
             {
                 cout << miTest.fetch(i) << endl;
             }
