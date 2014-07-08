@@ -24,14 +24,56 @@ int main()
 {
     setlocale(LC_ALL, "en_US.utf8");
     string testString;  // Regular string buffer for std:: functions.    
-    ifstream myfile("page1.html");
+    ifstream myfile("lyric1.html");
     
-    RefPtr<Regex> regex = Regex::create("/t/.{4}");
+    int foundTitle=0;
+    int foundEntry=0;
+    // int scanning = 0;
+    int terminated=0;
+    
+    // Found in the title bar
+    RefPtr<Regex> titleRX = Regex::create("「.*」");
+    
+    // Matches the line where the lyrics begin.
+    RefPtr<Regex> entryRX = Regex::create("p id=\"_txt_main\"");
+    
+    // Match a single line of lyrics:
+    RefPtr<Regex> firstLineRX = Regex::create("(?<=>).*(?=<br)");
+    RefPtr<Regex> lyricRX = Regex::create("^.+(?=<br)");
+    
+    RefPtr<Regex> endRX = Regex::create("^.*(?=</p)");
+    
     MatchInfo mInfo;
     
     while( getline(myfile, testString) )
     {
-        regex->match(ustring(testString), mInfo);
+        if(!foundTitle)
+        {
+            if(titleRX->match(ustring(testString), mInfo))
+            {
+                foundTitle=1;
+            }
+        }
+        else if(!foundEntry)
+        {
+            if(entryRX->match(ustring(testString), mInfo))
+            {
+                firstLineRX->match(ustring(testString), mInfo);
+                foundEntry=1;
+            }
+        }
+        else if(!terminated)
+        {
+            if(endRX->match(ustring(testString), mInfo))
+                terminated=1;
+            else
+            {
+                // scanning=1;
+                lyricRX->match(ustring(testString), mInfo);
+            }
+        }
+        else
+            break;
         
         while(mInfo.matches())
         {
