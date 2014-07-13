@@ -72,7 +72,7 @@ def remove_text_junk(text):
         text = text[index_begin : index_end]
     return (text, songs_found)
 
-def get_all_songs_from_index(quiet=True):
+def get_all_albums_from_index(quiet=True):
     """Gets a list of all song URLs from Anime Lyrics dot Com."""
     if not quiet:
         print('Fetching all album web pages from Anime Lyrics.')
@@ -88,7 +88,52 @@ def get_all_songs_from_index(quiet=True):
         print('Got {} album pages.'.format(len(song_list)))
     return song_list
 
-main = get_all_songs_from_index
+def get_all_songs_from_albums(error_report, quiet=True):
+    """Gets a list of all song URLs from an album page at Anime Lyrics."""
+    print_errors = not quiet
+    # This is a debugging/diagnostics variable. It does not affect the parsing.
+    albums_crawled = 0
+    urls = []
+    genres = listdir(DEFAULT_OUTPUT_PATH_AL)
+    # We do not want to parse our albums' index page. Just the albums.
+    genres.remove('indices')
+    for genre in genres:
+        for album in listdir(path_join(DEFAULT_OUTPUT_PATH_AL, genre)):
+            filename = normpath(path_join(DEFAULT_OUTPUT_PATH_AL, genre, album,
+                'index.html'))
+            albums_crawled += 1
+            try:
+                with open(filename, 'r') as infile:
+                    content = infile.read()
+            except IOError:
+                # This file does not exist. Ignore it.
+                error_report.add_error(
+                    'Error reading album {}: {}. Maybe it does not exist?'.
+                    format(albums_crawled, filename), also_print=print_errors)
+                continue
+            
+            # The file was successfully loaded. Extract all anchor links.
+            soup = BeautifulSoup(content)
+            # Remove any anchors with # signs in them. They are for javascript.
+            
+            # Songs appear to have unique names so that they can reside in the
+            # root folder of the album. That root folder has the index.html
+            # which we are parsing *right now*, so do not save index.html URLs.
+            anchors = [anchor['href'] for anchor in soup('a') \
+                if anchor.has_attr('href') and '#' not in anchor['href'] and \
+                'index.php?' not in anchor['href'] and \
+                'index.html' not in anchor['href']]
+            urls += anchors
+            
+            if not quiet:
+                if albums_crawled % DIAGNOSTICS_MULTIPLE == 0:
+                    print('Album {}: {}'.format(albums_crawled, filename))
+    if not quiet:
+        print('Got {} song URLs from {} cached album pages.'.format(
+            len(urls), albums_crawled))
+    return urls
+
+main = get_all_albums_from_index
 
 if __name__ == '__main__':
     main()

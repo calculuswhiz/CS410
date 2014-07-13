@@ -77,6 +77,55 @@ def retrieve_albums(relative_urls, error_report, quiet=True, max_retries=3):
         success = False
         if not quiet:
             debug_song_counter += 1
+            if debug_song_counter % DIAGNOSTIC_MULTIPLE == 0:
+                print('Fetching song {} of {}: {}'.format(
+                    debug_song_counter, len(relative_urls),
+                    ''.join([HOME_PAGE_AL, rel_url, '/'])))
+        
+        try:
+            while not success and retry_count > 0:
+                text = get_page_content(url)
+                success = text is not None
+                retry_count -= 1
+        except KeyboardInterrupt:
+            # Stop running the program.
+            break
+        
+        if retry_count <= 0 and not success:
+            print('Failed to fetch song: {}'.format(rel_url))
+        else:
+            fullpath = normpath(path_join(
+                DEFAULT_OUTPUT_PATH_AL, rel_url, 'index.html'))
+            # Trim the content.
+            trimmed_text = trim_album(text, fullpath, error_report,
+                print_errors)
+            if trimmed_text:
+                text = trimmed_text
+            soup = BeautifulSoup(text)
+            # Save the cleaned up page locally.
+            nicepath = normpath(path_join(output_path, 'index.html'))
+            with open(nicepath, 'w') as outfile:
+                outfile.write(soup.prettify('utf-8'))
+
+def retrieve_songs(song_urls, error_report, quiet=True, max_retries=3):
+    """Saves song pages from Anime Lyrics from song_urls.
+    
+    Retrieve the song_urls using get_all_songs_from_albums() of the parser.
+    """
+    
+    """
+    print_errors = not quiet
+    if not quiet:
+        print('Fetching Anime Lyrics song pages.')
+    debug_song_counter = 0
+    for rel_url in relative_urls:
+        output_path = path_join(DEFAULT_OUTPUT_PATH_AL, rel_url)
+        create_dir_recursively(output_path)
+        url = ''.join([HOME_PAGE_AL, rel_url, '/'])
+        retry_count = max_retries
+        success = False
+        if not quiet:
+            debug_song_counter += 1
             print('Fetching song {} of {}: {}'.format(
                 debug_song_counter, len(relative_urls),
                 ''.join([HOME_PAGE_AL, rel_url, '/'])))
@@ -105,6 +154,8 @@ def retrieve_albums(relative_urls, error_report, quiet=True, max_retries=3):
             nicepath = normpath(path_join(output_path, 'index.html'))
             with open(nicepath, 'w') as outfile:
                 outfile.write(soup.prettify('utf-8'))
+                """
+    pass
 
 def trim_album(text, fullpath, error_report, quiet=True):
     """Returns the album page with unwanted text removed from it.
@@ -119,7 +170,7 @@ def trim_album(text, fullpath, error_report, quiet=True):
     if not text:
         # This is an empty file. Do not parse it.
         error_report.add_error(
-            'File is empty: {}.\n'.format(fullpath),
+            'File is empty: {}.'.format(fullpath),
             also_print=print_errors)
         return trimmed_text
     
@@ -132,7 +183,7 @@ def trim_album(text, fullpath, error_report, quiet=True):
         # The meta tag is not important, so we will continue.
         # Log the failure anyways.
         error_report.add_error(
-            'Failed to extract the charset of {}.\n'.format(
+            'Failed to extract the charset of {}.'.format(
             fullpath), also_print=print_errors)
     
     if trimmed_text or (not trimmed_text and not songs_found):
@@ -140,7 +191,7 @@ def trim_album(text, fullpath, error_report, quiet=True):
             # Trim the page despite having no songs.
             # Make a warning in the error log.
             error_report.add_error(
-                'Trimmed a songless page: {}.\n'.format(
+                'Trimmed a songless page: {}.'.format(
                 fullpath), also_print=print_errors)
         
         # We have successfully trimmed the text.
@@ -150,11 +201,14 @@ def trim_album(text, fullpath, error_report, quiet=True):
     else:
         # Trimming the text failed. Output an error report.
         error_report.add_error(
-            'Failed to trim {}.\n'.format(fullpath),
+            'Failed to trim {}.'.format(fullpath),
             also_print=print_errors)
     
     return trimmed_text
 
+# DEPRECATED
+# This function probably still functions correctly, but there is
+# no longer a need to use it.
 def trim_local_album_pages(error_report, quiet=True):
     """Removes junk from album pages and saves them in nice.html
     
@@ -176,7 +230,7 @@ def trim_local_album_pages(error_report, quiet=True):
                 genre_path, album, 'index.html'))
             if not isfile(fullpath):
                 error_report.add_error(
-                    'File does not exist: {}.\n'.format(fullpath),
+                    'File does not exist: {}.'.format(fullpath),
                     also_print=print_errors)
                 continue
             
@@ -197,18 +251,18 @@ def main(quiet=True):
     try:
         if not quiet:
             print('Making output directories for Anime Lyrics.')
-        create_dir_recursively(DEFAULT_OUTPUT_PATH_AL)
-        create_dir_recursively(DEFAULT_SONG_INDEX_PATH_AL)\
+        #create_dir_recursively(DEFAULT_OUTPUT_PATH_AL)
+        #create_dir_recursively(DEFAULT_SONG_INDEX_PATH_AL)
         #retrieve_indices()
-        song_list = parse_anime_lyrics.get_all_songs_from_index()
-        retrieve_albums(song_list, error_report, quiet)
-        #trim_local_album_pages(error_report, quiet)
+        #song_list = parse_anime_lyrics.get_all_albums_from_index()
+        #retrieve_albums(song_list, error_report, quiet)
+        urls = parse_anime_lyrics.get_all_songs_from_albums(error_report, quiet)
     except KeyboardInterrupt:
         pass
     except:
         from sys import exc_info
         error_report.add_error(
-            'Unexpected error of type {}\n{}\n{}\n'.format(
+            'Unexpected error of type {}\n{}\n{}'.format(
             exc_info()[0], exc_info()[1], exc_info()[2]),
             also_print=False)
         raise

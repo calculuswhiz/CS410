@@ -33,6 +33,11 @@ BS_PARSER = 'lxml'
 charset_regex = re.compile('<meta .*charset=.*>',
     re.UNICODE | re.IGNORECASE)
 
+# How often to display diagnostics. Using a counter, use the modulus on it.
+# Usage: if counter % DIAGNOSTICS_MULTIPLE == 0:
+#    print('{}: Doing stuff.'.format(counter))
+DIAGNOSTICS_MULTIPLE = 500
+
 # Keep track of all errors and write them out when the program ends.
 class ErrorReport(object):
     """Stores all errors that occurred and writes them to disk."""
@@ -42,7 +47,7 @@ class ErrorReport(object):
     
     def add_error(my, text, also_print=False):
         """Adds a line of text to the error report."""
-        my.report += text
+        my.report += text + '\n'
         if also_print:
             print(text.strip())
     
