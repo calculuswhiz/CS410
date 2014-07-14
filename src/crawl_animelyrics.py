@@ -96,16 +96,22 @@ def retrieve_albums(relative_urls, error_report, quiet=True, max_retries=3):
         else:
             fullpath = normpath(path_join(
                 DEFAULT_OUTPUT_PATH_AL, rel_url, 'index.html'))
-            # Trim the content.
-            trimmed_text = trim_album(text, fullpath, error_report,
-                print_errors)
-            if trimmed_text:
-                text = trimmed_text
-            soup = BeautifulSoup(text)
-            # Save the cleaned up page locally.
             nicepath = normpath(path_join(output_path, 'index.html'))
-            with open(nicepath, 'w') as outfile:
-                outfile.write(soup.prettify('utf-8'))
+            # Trim the content.
+            save_page_with_proper_markup(text, trim_album, fullpath, nicepath,
+                error_report, print_errors)
+
+def save_page_with_proper_markup(text, trim_func, inputpath, outputpath,
+    error_report, print_errors):
+    """Takes plain text markup and resaves it as valid HTML markup."""
+    # Trim the content.
+    trimmed_text = trim_func(text, inputpath, error_report, print_errors)
+    if trimmed_text:
+        text = trimmed_text
+    soup = BeautifulSoup(text)
+    # Save the cleaned up page locally.
+    with open(outputpath, 'w') as outfile:
+        outfile.write(soup.prettify('utf-8'))
 
 def retrieve_songs(song_urls, error_report, quiet=True, max_retries=3):
     """Saves song pages from Anime Lyrics from song_urls.
@@ -206,6 +212,31 @@ def trim_album(text, fullpath, error_report, quiet=True):
     
     return trimmed_text
 
+def trim_song(text, fullpath, error_report, quiet=True):
+    """Returns the song page with unwanted text removed from it.
+    
+    @param text: All of the web page's text as one string.
+    
+    Returns the processed text on success or an empty string otherwise.
+    """
+    
+    print_errors = not quiet
+    trimmed_text = ''
+    if not text:
+        # This is an empty file. Do not parse it.
+        error_report.add_error(
+            'File is empty: {}.'.format(fullpath),
+            also_print=print_errors)
+        return trimmed_text
+    
+    trimmed_text = parse_anime_lyrics.remove_text_junk_from_song(text)
+    charset_tag = extract_meta_charset_tag(text)
+    if not trimmed_text:
+        error_report.add_error(
+            'Failed to trim: {}.'.format(fullpath), also_print=print_errors)
+    
+    return trimmed_text
+
 # DEPRECATED
 # This function probably still functions correctly, but there is
 # no longer a need to use it.
@@ -246,6 +277,10 @@ def trim_local_album_pages(error_report, quiet=True):
                 with open(nicepath, 'w') as outfile:
                     outfile.write(soup.prettify('utf-8'))
 
+def write_song_urls_to_file(urls):
+    """Writes all song URLs to a file for later access."""
+    pass
+
 def main(quiet=True):
     error_report = ErrorReport()
     try:
@@ -256,7 +291,15 @@ def main(quiet=True):
         #retrieve_indices()
         #song_list = parse_anime_lyrics.get_all_albums_from_index()
         #retrieve_albums(song_list, error_report, quiet)
-        urls = parse_anime_lyrics.get_all_songs_from_albums(error_report, quiet)
+        #urls = parse_anime_lyrics.get_all_songs_from_albums(error_report,quiet)
+        #write_song_urls_to_file(urls)
+        if isfile('test.html'):
+            # Do a simple test to see if we can successfully trim a song.
+            with open('test.html', 'r') as infile:
+                text = infile.read()
+            save_page_with_proper_markup(text, trim_song, 'test.html',
+                'out.html', error_report, not quiet)
+        #retrieve_songs(urls, error_report, quiet)
     except KeyboardInterrupt:
         pass
     except:

@@ -21,6 +21,8 @@ break this program.
 ALBUM_LIST_START = 'Original Title'
 # Find this substring and remove everything after it before caching.
 FOOTER_TEXT = 'Submit a song'
+# Find this substring and remove everything after it in a song page.
+SONG_FOOTER_TEXT = 'Animelyrics.com now has an OpenSearch plugin'
 
 
 def get_albums(fullpath, regex):
@@ -71,6 +73,36 @@ def remove_text_junk(text):
     if index_begin >= 0 and index_end >= 0:
         text = text[index_begin : index_end]
     return (text, songs_found)
+
+def remove_text_junk_from_song(text):
+    """Removes the header and footer of Anime Lyrics song pages.
+    
+    Returns the processed text. On failure, returns an empty string.
+    """
+    
+    # Find the second h1 tag and save only up to that much.
+    index_begin = text.find('<h1')
+    if index_begin < 0:
+        text = ''
+    # Increment our find() result by one because otherwise we will
+    # just hit our same h1 tag in the next search again.
+    index_begin = text.find('<h1', index_begin + 1)
+    if index_begin < 0:
+        text = ''
+    # Find the footer by its tell-tale text beyond the album list.
+    index_end = text.find(SONG_FOOTER_TEXT, index_begin)
+    if index_end < 0:
+        text = ''
+    # This clears up a lot of unwanted text. Now we can do a reverse search
+    # with less worries about processing time. Look for the song lyrics'
+    # layout table closing tag.
+    index_end = text.rfind('</table', index_begin, index_end)
+    if index_end < 0:
+        text = ''
+    # Remove all unnecessary text.
+    if index_begin >= 0 and index_end >= 0:
+        text = text[index_begin : index_end]
+    return text
 
 def get_all_albums_from_index(quiet=True):
     """Gets a list of all song URLs from Anime Lyrics dot Com."""
