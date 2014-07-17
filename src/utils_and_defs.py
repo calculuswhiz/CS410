@@ -38,6 +38,8 @@ charset_regex = re.compile('<meta .*charset=.*>',
 # Usage: if counter % DIAGNOSTICS_MULTIPLE == 0:
 #    print('{}: Doing stuff.'.format(counter))
 DIAGNOSTICS_MULTIPLE = 500
+# This is the same, but applies to URLs we are fetching.
+DIAGNOSTICS_URL_MULTIPLE = 10
 
 # Keep track of all errors and write them out when the program ends.
 class ErrorReport(object):

@@ -113,32 +113,32 @@ def save_page_with_proper_markup(text, trim_func, inputpath, outputpath,
     with open(outputpath, 'w') as outfile:
         outfile.write(soup.prettify('utf-8'))
 
-def retrieve_songs(song_urls, error_report, quiet=True, max_retries=3):
-    """Saves song pages from Anime Lyrics from song_urls.
+def retrieve_songs(song_paths, error_report, quiet=True, max_retries=3):
+    """Saves song pages from Anime Lyrics from song_paths.
     
-    Retrieve the song_urls using get_all_songs_from_albums() of the parser.
+    Retrieve the song_paths using get_all_songs_from_albums() of the parser.
+    URLs are actually paths such as "anime/keion/myownroad.htm".
     """
     
-    """
     print_errors = not quiet
     if not quiet:
         print('Fetching Anime Lyrics song pages.')
     debug_song_counter = 0
-    for rel_url in relative_urls:
-        output_path = path_join(DEFAULT_OUTPUT_PATH_AL, rel_url)
-        create_dir_recursively(output_path)
-        url = ''.join([HOME_PAGE_AL, rel_url, '/'])
+    for rel_path in song_paths:
+        output_path = path_join(DEFAULT_OUTPUT_PATH_AL, rel_path)
+        url_path = ''.join([HOME_PAGE_AL, rel_path])
         retry_count = max_retries
         success = False
         if not quiet:
             debug_song_counter += 1
-            print('Fetching song {} of {}: {}'.format(
-                debug_song_counter, len(relative_urls),
-                ''.join([HOME_PAGE_AL, rel_url, '/'])))
+            if debug_song_counter % DIAGNOSTICS_URL_MULTIPLE == 0:
+                print('Fetching song {} of {}: {}'.format(
+                    debug_song_counter, len(relative_paths),
+                    url_path))
         
         try:
             while not success and retry_count > 0:
-                text = get_page_content(url)
+                text = get_page_content(url_path)
                 success = text is not None
                 retry_count -= 1
         except KeyboardInterrupt:
@@ -146,22 +146,18 @@ def retrieve_songs(song_urls, error_report, quiet=True, max_retries=3):
             break
         
         if retry_count <= 0 and not success:
-            print('Failed to fetch song: {}'.format(rel_url))
+            print('Failed to fetch song {}: {}'.format(
+                debug_song_counter, rel_path))
         else:
-            fullpath = normpath(path_join(
-                DEFAULT_OUTPUT_PATH_AL, rel_url, 'index.html'))
             # Trim the content.
-            trimmed_text = trim_album(text, fullpath, error_report,
+            trimmed_text = trim_song(text, output_path, error_report,
                 print_errors)
             if trimmed_text:
                 text = trimmed_text
             soup = BeautifulSoup(text)
             # Save the cleaned up page locally.
-            nicepath = normpath(path_join(output_path, 'index.html'))
-            with open(nicepath, 'w') as outfile:
+            with open(output_path, 'w') as outfile:
                 outfile.write(soup.prettify('utf-8'))
-                """
-    pass
 
 def trim_album(text, fullpath, error_report, quiet=True):
     """Returns the album page with unwanted text removed from it.
@@ -287,10 +283,17 @@ def trim_local_album_pages(error_report, quiet=True):
                 with open(nicepath, 'w') as outfile:
                     outfile.write(soup.prettify('utf-8'))
 
-def write_song_urls_to_file(urls):
+def write_song_paths_to_file(paths):
     """Writes all song URLs to a file for later access."""
     with open(SONGS_LIST_FILEPATH, 'w') as outfile:
-        outfile.write('\n'.join(urls))
+        outfile.write('\n'.join(paths))
+
+def read_song_paths_from_file(filename):
+    """Writes all song URLs to a file for later access."""
+    paths = []
+    with open(filename, 'r') as infile:
+        paths = [line.strip() for line in infile.readlines()]
+    return paths
 
 def main(quiet=True):
     error_report = ErrorReport()
@@ -302,15 +305,16 @@ def main(quiet=True):
         #retrieve_indices()
         #song_list = parse_anime_lyrics.get_all_albums_from_index()
         #retrieve_albums(song_list, error_report, quiet)
-        #urls = parse_anime_lyrics.get_all_songs_from_albums(error_report,quiet)
-        #write_song_urls_to_file(urls)
+        #paths = parse_anime_lyrics.get_all_songs_from_albums(error_report,quiet)
+        #write_song_paths_to_file(paths)
         if isfile('test.html'):
             # Do a simple test to see if we can successfully trim a song.
             with open('test.html', 'r') as infile:
                 text = infile.read()
             save_page_with_proper_markup(text, trim_song, 'test.html',
                 'out.html', error_report, not quiet)
-        #retrieve_songs(urls, error_report, quiet)
+        paths = read_song_paths_from_file(SONGS_LIST_FILEPATH)
+        retrieve_songs(paths[:5], error_report, quiet)
     except KeyboardInterrupt:
         pass
     except:
