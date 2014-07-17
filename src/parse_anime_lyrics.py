@@ -128,7 +128,12 @@ def get_all_songs_from_albums(error_report, quiet=True):
     urls = []
     genres = listdir(DEFAULT_OUTPUT_PATH_AL)
     # We do not want to parse our albums' index page. Just the albums.
-    genres.remove('indices')
+    try:
+        genres.remove('indices')
+        genres.remove('songs.txt')
+    except ValueError:
+        pass
+    
     for genre in genres:
         for album in listdir(path_join(DEFAULT_OUTPUT_PATH_AL, genre)):
             filename = normpath(path_join(DEFAULT_OUTPUT_PATH_AL, genre, album,
@@ -151,9 +156,10 @@ def get_all_songs_from_albums(error_report, quiet=True):
             # Songs appear to have unique names so that they can reside in the
             # root folder of the album. That root folder has the index.html
             # which we are parsing *right now*, so do not save index.html URLs.
+            # Also, URLs with '?' in them are for PHP pages that we do not want.
             anchors = [anchor['href'] for anchor in soup('a') \
                 if anchor.has_attr('href') and '#' not in anchor['href'] and \
-                'index.php?' not in anchor['href'] and \
+                '?' not in anchor['href'] and \
                 'index.html' not in anchor['href']]
             urls += anchors
             

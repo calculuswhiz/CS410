@@ -228,12 +228,22 @@ def trim_song(text, fullpath, error_report, quiet=True):
             'File is empty: {}.'.format(fullpath),
             also_print=print_errors)
         return trimmed_text
+
+    charset_tag = extract_meta_charset_tag(text)
+    if not charset_tag:
+        # The meta tag is not important, so we will continue.
+        # Log the failure anyways.
+        error_report.add_error(
+            'Failed to extract the charset of {}.'.format(
+            fullpath), also_print=print_errors)
     
     trimmed_text = parse_anime_lyrics.remove_text_junk_from_song(text)
     charset_tag = extract_meta_charset_tag(text)
     if not trimmed_text:
         error_report.add_error(
             'Failed to trim: {}.'.format(fullpath), also_print=print_errors)
+    elif charset_tag:
+        trimmed_text = '\n'.join([charset_tag,trimmed_text])
     
     return trimmed_text
 
@@ -279,7 +289,8 @@ def trim_local_album_pages(error_report, quiet=True):
 
 def write_song_urls_to_file(urls):
     """Writes all song URLs to a file for later access."""
-    pass
+    with open(SONGS_LIST_FILEPATH, 'w') as outfile:
+        outfile.write('\n'.join(urls))
 
 def main(quiet=True):
     error_report = ErrorReport()

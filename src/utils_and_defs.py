@@ -24,6 +24,7 @@ START_TIME = time()
 HOME_PAGE_AL = 'http://www.animelyrics.com/'
 DEFAULT_OUTPUT_PATH_AL = normpath('../crawled/animelyrics/')
 DEFAULT_SONG_INDEX_PATH_AL = path_join(DEFAULT_OUTPUT_PATH_AL, 'indices/')
+SONGS_LIST_FILEPATH = normpath(path_join(DEFAULT_OUTPUT_PATH_AL, 'songs.txt'))
 
 # The parser that BeautifulSoup will use for reading the web pages.
 # http://www.crummy.com/software/BeautifulSoup/bs4/doc/#parser-installation
