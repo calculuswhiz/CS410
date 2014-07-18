@@ -6,6 +6,7 @@ from os.path import normpath, isfile, join as path_join
 from time import sleep, time
 from random import randint
 import urllib2
+import argparse
 from utils_and_defs import *
 import parse_anime_lyrics
 from bs4 import BeautifulSoup
@@ -308,7 +309,7 @@ def main(quiet=True):
             save_page_with_proper_markup(text, trim_song, 'test.html',
                 'out.html', error_report, not quiet)
         paths = read_song_paths_from_file(SONGS_LIST_FILEPATH)
-        retrieve_songs(paths[:10], error_report, quiet)
+        retrieve_songs(paths[:1], error_report, quiet)
     except KeyboardInterrupt:
         pass
     except:
@@ -319,7 +320,8 @@ def main(quiet=True):
             also_print=False)
         raise
     finally:
-        error_report.write_out()
+        error_filename = error_report.get_suitable_report_filename()
+        error_report.write_out(error_filename)
         if not quiet:
             print('This script took {} seconds to run.'.format(
                 time() - START_TIME))

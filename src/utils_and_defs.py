@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from os import makedirs
+from os import makedirs, listdir
 from os.path import normpath, isdir, join as path_join
 from time import sleep, time
 from random import randint
@@ -47,6 +47,31 @@ class ErrorReport(object):
     
     def __init__(my):
         my.report = ''
+    
+    def get_suitable_report_filename(my):
+        """Chooses a filename to avoid conflicts between error log filenames.
+        
+        Error logs have a name like error0000.log and will increment the
+        number if the file already exists. If error9999.log exists, then
+        error0000.log will be written in to. Please clean up the error logs
+        if this happens.
+        """
+        
+        error_log_number = 0
+        error_files = [filename for filename in listdir('.') \
+            if 'error' in filename]
+        error_files.sort()
+        if len(error_files) > 0:
+            # Try to increment the number of the last error report's filename.
+            try:
+                error_log_number = int(error_files[-1][5:9]) + 1
+            except ValueError:
+                # It's not the report filename we expected. Let's just use 0.
+                pass
+        # Avoid underflow and overflow.
+        if error_log_number > 9999 or error_log_number < 0:
+            error_log_number = 0
+        return 'error{:0>4}.log'.format(error_log_number)
     
     def add_error(my, text, also_print=False):
         """Adds a line of text to the error report."""
