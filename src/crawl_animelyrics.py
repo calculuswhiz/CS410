@@ -133,7 +133,7 @@ def retrieve_songs(song_paths, error_report, quiet=True, max_retries=3):
             debug_song_counter += 1
             if debug_song_counter % DIAGNOSTICS_URL_MULTIPLE == 0:
                 print('Fetching song {} of {}: {}'.format(
-                    debug_song_counter, len(relative_paths),
+                    debug_song_counter, len(song_paths),
                     url_path))
         
         try:
@@ -150,14 +150,8 @@ def retrieve_songs(song_paths, error_report, quiet=True, max_retries=3):
                 debug_song_counter, rel_path))
         else:
             # Trim the content.
-            trimmed_text = trim_song(text, output_path, error_report,
-                print_errors)
-            if trimmed_text:
-                text = trimmed_text
-            soup = BeautifulSoup(text)
-            # Save the cleaned up page locally.
-            with open(output_path, 'w') as outfile:
-                outfile.write(soup.prettify('utf-8'))
+            save_page_with_proper_markup(text, trim_song, output_path,
+                output_path, error_report, print_errors)
 
 def trim_album(text, fullpath, error_report, quiet=True):
     """Returns the album page with unwanted text removed from it.
@@ -314,7 +308,7 @@ def main(quiet=True):
             save_page_with_proper_markup(text, trim_song, 'test.html',
                 'out.html', error_report, not quiet)
         paths = read_song_paths_from_file(SONGS_LIST_FILEPATH)
-        retrieve_songs(paths[:5], error_report, quiet)
+        retrieve_songs(paths[:10], error_report, quiet)
     except KeyboardInterrupt:
         pass
     except:

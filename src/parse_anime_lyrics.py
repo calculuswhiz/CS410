@@ -96,9 +96,12 @@ def remove_text_junk_from_song(text):
     # This clears up a lot of unwanted text. Now we can do a reverse search
     # with less worries about processing time. Look for the song lyrics'
     # layout table closing tag.
-    index_end = text.rfind('</table', index_begin, index_end)
-    if index_end < 0:
-        text = ''
+    index_true_end = text.rfind('</table', index_begin, index_end)
+    if index_true_end >= 0:
+        # Songs without translations on Anime Lyrics do not
+        # have layout tables surrounding their lyrics, so take out
+        # more text if we have spotted the layout table.
+        index_end = index_true_end
     # Remove all unnecessary text.
     if index_begin >= 0 and index_end >= 0:
         text = text[index_begin : index_end]
