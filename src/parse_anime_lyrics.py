@@ -134,6 +134,45 @@ def does_song_have_kanji_lyrics(soup_song, error_report, quiet=True):
     
     return len(soup_song.parent('img', alt='Japanese Kanji available')) > 0
 
+def is_anchor_in_song_field(soup_song, error_report, quiet=True):
+    """Checks if a song we found is actually in the table Description field.
+    
+    Songs in this section are not what we want to fetch. It is found by looking
+    for the parent of the passed anchor, then checking if its class is "alt".
+    Note that the class we DO want to store is "specalt".
+    
+    @returns: True if the anchor is in the description field of the table.
+    """
+    
+    try:
+        return soup_song.parent['class'][0] == 'specalt'
+        #return soup('a')[5].parent['class']
+    except KeyError:
+        # The parent tag doesn't have a class defined. Our rule doesn't apply.
+        return False
+
+def is_song_valid_url(soup_anchor, error_report, quiet=True):
+    """Checks if a song's anchor is a valid URL.
+    
+    index pages are ignored because they are album pages instead of song pages.
+    "&lt;a" which is "<a" links are ignored because they aren't valid in the
+    first place. (Maybe its a bug in Anime Lyrics to make these links).
+    """
+    
+    # Remove any anchors with # signs in them. They are for javascript.
+            
+    # Songs appear to have unique names so that they can reside in the
+    # root folder of the album. That root folder has the index.html
+    # which we are parsing *right now*, so do not save index.html URLs.
+    # Also, URLs with '?' in them are for PHP pages that we do not want.
+    if soup_anchor.has_attr('href'):
+        href = soup_anchor['href']
+        return '#' not in href and '?' not in href and \
+            'index.html' not in href and href != '<a' and \
+            'http://' not in href and href != '.txt'
+    else:
+        return False
+
 def get_all_songs_from_albums(error_report, quiet=True):
     """Gets a list of all song URLs from an album page at Anime Lyrics."""
     print_errors = not quiet
@@ -147,12 +186,13 @@ def get_all_songs_from_albums(error_report, quiet=True):
         genres.remove('songs.txt')
     except ValueError:
         pass
+    except WindowsError:
+        pass
     
     for genre in genres:
         for album in listdir(path_join(DEFAULT_OUTPUT_PATH_AL, genre)):
             filename = normpath(path_join(DEFAULT_OUTPUT_PATH_AL, genre, album,
                 'index.html'))
-            albums_crawled += 1
             try:
                 with open(filename, 'r') as infile:
                     content = infile.read()
@@ -162,19 +202,12 @@ def get_all_songs_from_albums(error_report, quiet=True):
                     'Error reading album {}: {}. Maybe it does not exist?'.
                     format(albums_crawled, filename), also_print=print_errors)
                 continue
+            albums_crawled += 1
             
             # The file was successfully loaded. Extract all anchor links.
             soup = BeautifulSoup(content)
-            # Remove any anchors with # signs in them. They are for javascript.
-            
-            # Songs appear to have unique names so that they can reside in the
-            # root folder of the album. That root folder has the index.html
-            # which we are parsing *right now*, so do not save index.html URLs.
-            # Also, URLs with '?' in them are for PHP pages that we do not want.
             anchors = [anchor for anchor in soup('a') \
-                if anchor.has_attr('href') and '#' not in anchor['href'] and \
-                '?' not in anchor['href'] and \
-                'index.html' not in anchor['href']]
+                if is_song_valid_url(anchor, error_report, quiet)]
             # See if these anchored song pages have kanji lyrics available.
             for anchor in anchors[:]:
                 if does_song_have_kanji_lyrics(anchor, error_report, quiet):
