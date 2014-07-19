@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+from sys import argv
 from os import makedirs
-from os.path import normpath, isfile, join as path_join
+from os.path import normpath, isfile, dirname, join as path_join
 from time import sleep, time
 from random import randint
 import urllib2
@@ -117,8 +118,8 @@ def save_page_with_proper_markup(text, trim_func, inputpath, outputpath,
 def retrieve_songs(song_paths, error_report, quiet=True, max_retries=3):
     """Saves song pages from Anime Lyrics from song_paths.
     
-    Retrieve the song_paths using get_all_songs_from_albums() of the parser.
-    URLs are actually paths such as "anime/keion/myownroad.htm".
+    Saves all online pages from Anime Lyrics produced by song_paths.
+    song_paths are paths such as "anime/keion/myownroad.txt".
     """
     
     print_errors = not quiet
@@ -127,6 +128,7 @@ def retrieve_songs(song_paths, error_report, quiet=True, max_retries=3):
     debug_song_counter = 0
     for rel_path in song_paths:
         output_path = path_join(DEFAULT_OUTPUT_PATH_AL, rel_path)
+        create_dir_recursively(dirname(output_path))
         url_path = ''.join([HOME_PAGE_AL, rel_path])
         retry_count = max_retries
         success = False
@@ -300,16 +302,22 @@ def main(quiet=True):
         #retrieve_indices()
         #song_list = parse_anime_lyrics.get_all_albums_from_index()
         #retrieve_albums(song_list, error_report, quiet)
-        paths = parse_anime_lyrics.get_all_songs_from_albums(error_report,quiet)
-        write_song_paths_to_file(paths)
+        #paths = parse_anime_lyrics.get_all_songs_from_albums(error_report,quiet)
+        #write_song_paths_to_file(paths)
         if isfile('test.html'):
             # Do a simple test to see if we can successfully trim a song.
             with open('test.html', 'r') as infile:
                 text = infile.read()
             save_page_with_proper_markup(text, trim_song, 'test.html',
                 'out.html', error_report, not quiet)
-        #paths = read_song_paths_from_file(SONGS_LIST_FILEPATH)
-        #retrieve_songs(paths[:1], error_report, quiet)
+        #"""
+        paths = read_song_paths_from_file(SONGS_LIST_FILEPATH)
+        if len(argv) == 3:
+            retrieve_songs(paths[int(argv[1]):int(argv[2])],
+                error_report, quiet)
+        else:
+            print('Arguments: paths_start, paths_end')
+        #"""
     except KeyboardInterrupt:
         pass
     except:
@@ -323,7 +331,7 @@ def main(quiet=True):
         error_filename = error_report.get_suitable_report_filename()
         error_report.write_out(error_filename)
         if not quiet:
-            print('This script took {} seconds to run.'.format(
+            print('This script took {:.2f} seconds to run.'.format(
                 time() - START_TIME))
 
 

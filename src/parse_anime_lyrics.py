@@ -23,6 +23,8 @@ ALBUM_LIST_START = 'Original Title'
 FOOTER_TEXT = 'Submit a song'
 # Find this substring and remove everything after it in a song page.
 SONG_FOOTER_TEXT = 'Animelyrics.com now has an OpenSearch plugin'
+# Whether we should save HTML pages or Print-Preview pages.
+SAVE_HTML_VARIANT = True
 
 
 def get_albums(fullpath, regex):
@@ -211,17 +213,25 @@ def get_all_songs_from_albums(error_report, quiet=True):
             # See if these anchored song pages have kanji lyrics available.
             for anchor in anchors[:]:
                 if does_song_have_kanji_lyrics(anchor, error_report, quiet):
-                    # Save the print-view version, but remove the old anchor.
-                    # We will have redundant data crawled otherwise because
-                    # they store all three types of text in the same print view.
-                    anchors.remove(anchor)
-                    urls.append(anchor['href'][:anchor['href'].rfind('.')] + \
-                        '.jis.txt')
-            # Save the print-view versions of the URLs of the remaining anchors.
-            # These anchors do not have kanji lyrics.
-            # Remove the file extension of the anchor and replace it with .txt
-            urls += [anchor['href'][:anchor['href'].rfind('.')] + '.txt' for \
-                anchor in anchors]
+                    if SAVE_HTML_VARIANT:
+                        # Save the Kanji version of the page too.
+                        urls.append(anchor['href'][:anchor['href'].rfind('.')]+\
+                            '.jis')
+                    else:
+                        # Save the print-view version, but remove the old one.
+                        # We will have redundant data crawled otherwise because
+                        # they store all three text types in the print view.
+                        anchors.remove(anchor)
+                        urls.append(anchor['href'][:anchor['href'].rfind('.')]+\
+                            '.jis.txt')
+            if SAVE_HTML_VARIANT:
+                urls += [anchor['href'] for anchor in anchors]
+            else:
+                # Save the print-view versions of the URLs of the remaining
+                # anchors. These anchors do not have kanji lyrics. Remove the
+                # file extension of the anchor and replace it with .txt
+                urls += [anchor['href'][:anchor['href'].rfind('.')] + '.txt' \
+                    for anchor in anchors]
             
             if not quiet:
                 if albums_crawled % DIAGNOSTICS_MULTIPLE == 0:
