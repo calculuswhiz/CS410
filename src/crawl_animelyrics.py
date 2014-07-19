@@ -300,16 +300,16 @@ def main(quiet=True):
         #retrieve_indices()
         #song_list = parse_anime_lyrics.get_all_albums_from_index()
         #retrieve_albums(song_list, error_report, quiet)
-        #paths = parse_anime_lyrics.get_all_songs_from_albums(error_report,quiet)
-        #write_song_paths_to_file(paths)
+        paths = parse_anime_lyrics.get_all_songs_from_albums(error_report,quiet)
+        write_song_paths_to_file(paths)
         if isfile('test.html'):
             # Do a simple test to see if we can successfully trim a song.
             with open('test.html', 'r') as infile:
                 text = infile.read()
             save_page_with_proper_markup(text, trim_song, 'test.html',
                 'out.html', error_report, not quiet)
-        paths = read_song_paths_from_file(SONGS_LIST_FILEPATH)
-        retrieve_songs(paths[:1], error_report, quiet)
+        #paths = read_song_paths_from_file(SONGS_LIST_FILEPATH)
+        #retrieve_songs(paths[:1], error_report, quiet)
     except KeyboardInterrupt:
         pass
     except:

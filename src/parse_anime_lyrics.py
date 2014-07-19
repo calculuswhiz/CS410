@@ -123,6 +123,17 @@ def get_all_albums_from_index(quiet=True):
         print('Got {} album pages.'.format(len(song_list)))
     return song_list
 
+def does_song_have_kanji_lyrics(soup_song, error_report, quiet=True):
+    """Checks if a song found in the soup has kanji lyrics available.
+    
+    It does this by looking at where the anchor link of the song was found.
+    The parent of the song's anchor may have images. One image may have the
+    alt text "Japanese Kanji available". If that is found, this function
+    returns True.
+    """
+    
+    return len(soup_song.parent('img', alt='Japanese Kanji available')) > 0
+
 def get_all_songs_from_albums(error_report, quiet=True):
     """Gets a list of all song URLs from an album page at Anime Lyrics."""
     print_errors = not quiet
@@ -160,11 +171,24 @@ def get_all_songs_from_albums(error_report, quiet=True):
             # root folder of the album. That root folder has the index.html
             # which we are parsing *right now*, so do not save index.html URLs.
             # Also, URLs with '?' in them are for PHP pages that we do not want.
-            anchors = [anchor['href'] for anchor in soup('a') \
+            anchors = [anchor for anchor in soup('a') \
                 if anchor.has_attr('href') and '#' not in anchor['href'] and \
                 '?' not in anchor['href'] and \
                 'index.html' not in anchor['href']]
-            urls += anchors
+            # See if these anchored song pages have kanji lyrics available.
+            for anchor in anchors[:]:
+                if does_song_have_kanji_lyrics(anchor, error_report, quiet):
+                    # Save the print-view version, but remove the old anchor.
+                    # We will have redundant data crawled otherwise because
+                    # they store all three types of text in the same print view.
+                    anchors.remove(anchor)
+                    urls.append(anchor['href'][:anchor['href'].rfind('.')] + \
+                        '.jis.txt')
+            # Save the print-view versions of the URLs of the remaining anchors.
+            # These anchors do not have kanji lyrics.
+            # Remove the file extension of the anchor and replace it with .txt
+            urls += [anchor['href'][:anchor['href'].rfind('.')] + '.txt' for \
+                anchor in anchors]
             
             if not quiet:
                 if albums_crawled % DIAGNOSTICS_MULTIPLE == 0:
@@ -174,7 +198,38 @@ def get_all_songs_from_albums(error_report, quiet=True):
             len(urls), albums_crawled))
     return urls
 
-main = get_all_albums_from_index
+def get_kanji_lyrics_path_from_song(error_report, quiet=True):
+    pass
 
-if __name__ == '__main__':
-    main()
+def get_kanji_lyrics_paths_from_songs(error_report, quiet=True):
+    """Looks in a cached Anime Lyrics song pages for kanji lyrics URLs.
+    
+    Anime Lyrics links to all of their songs' translations and transliterations.
+    In those pages, they have a link to the song's kanji lyrics.
+    This function looks at all cached song pages for those kanji lyrics paths.
+    For example, "Cagayake!GIRLS" has its lyrics and kanji lyrics pages here:
+    http://www.animelyrics.com/anime/keion/cagayakegirls.htm
+    http://www.animelyrics.com/anime/keion/cagayakegirls.jis
+    Returned paths are of the form "anime/keion/cagayakegirls.jis".
+    
+    @returns: A list of all songs' kanji lyrics paths.
+    """
+    
+    print_errors = not quiet
+    paths = []
+    # Loop through all of Anime Lyrics' genres to produce path names.
+    for genre in TOP_LEVEL_PAGES:
+        genre_path = normpath(path_join(DEFAULT_OUTPUT_PATH_AL, genre))
+        # Loop through all albums that exist in each genre.
+        for album in listdir(genre_path):
+            # Loop through all songs in that album.
+            album_path = normpath(path_join(genre_path, album))
+            # Find all songs. The index page is not a song, so remove it.
+            songs = [song for song in listdir(album_path) \
+                if song != 'index.html']
+            for song in songs:
+                fullpath = normpath(path_join(album_path, song))
+                with open(fullpath, 'r') as infile:
+                    alltext = infile.read()
+                soup = BeautifulSoup(alltext)
+    return paths
