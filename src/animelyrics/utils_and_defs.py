@@ -11,7 +11,7 @@ import urllib2
 __doc__ = """Utilities and definitions for all of our codebase."""
 
 # Whether or not to print output.
-DEBUG_BE_QUIET = False
+DEBUG_PRINT_DIAGNOSTICS = True
 
 # How long to sleep between calls to the web site.
 SLEEP_SEC_MIN = 1
@@ -57,7 +57,13 @@ class ErrorReport(object):
     """Stores all errors that occurred and writes them to disk."""
     
     def __init__(my):
-        my.report = ''
+        my._report = ''
+        # Whether or not to print the errors as they are added.
+        my._print_errors = DEBUG_PRINT_DIAGNOSTICS
+    
+    def set_print_errors(my, set_errors):
+        """Sets whether or not to print out errors when added."""
+        my._print_errors = set_errors
     
     def get_suitable_report_filename(my):
         """Chooses a filename to avoid conflicts between error log filenames.
@@ -84,17 +90,17 @@ class ErrorReport(object):
             error_log_number = 0
         return 'error{:0>4}.log'.format(error_log_number)
     
-    def add_error(my, text, also_print=False):
+    def add_error(my, text):
         """Adds a line of text to the error report."""
-        my.report += text + '\n'
-        if also_print:
+        my._report += text + '\n'
+        if my._print_errors:
             print(text.strip())
     
     def write_out(my, filename='error.log'):
         """Writes the error report out to disk if there were errors."""
-        if my.report:
+        if my._report:
             with open(filename, 'w') as error_file:
-                error_file.write(my.report)
+                error_file.write(my._report)
 
 def create_dir_recursively(path):
     """Creates the passed directory if it does not already exist."""

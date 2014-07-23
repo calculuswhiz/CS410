@@ -109,9 +109,9 @@ def remove_text_junk_from_song(text):
         text = text[index_begin : index_end]
     return text
 
-def get_all_albums_from_index(quiet=True):
+def get_all_albums_from_index():
     """Gets a list of all song URLs from Anime Lyrics dot Com."""
-    if not quiet:
+    if DEBUG_PRINT_DIAGNOSTICS:
         print('Fetching all album web pages from Anime Lyrics.')
     song_list = []
     # Get the list of URLs from the top index page.
@@ -121,11 +121,11 @@ def get_all_albums_from_index(quiet=True):
             filename))
         song_list += get_albums(fullpath,
             filename[:filename.find('.')])
-    if not quiet:
+    if DEBUG_PRINT_DIAGNOSTICS:
         print('Got {} album pages.'.format(len(song_list)))
     return song_list
 
-def does_song_have_kanji_lyrics(soup_song, error_report, quiet=True):
+def does_song_have_kanji_lyrics(soup_song, error_report):
     """Checks if a song found in the soup has kanji lyrics available.
     
     It does this by looking at where the anchor link of the song was found.
@@ -136,7 +136,7 @@ def does_song_have_kanji_lyrics(soup_song, error_report, quiet=True):
     
     return len(soup_song.parent('img', alt='Japanese Kanji available')) > 0
 
-def is_anchor_in_song_field(soup_song, error_report, quiet=True):
+def is_anchor_in_song_field(soup_song, error_report):
     """Checks if a song we found is actually in the table Description field.
     
     Songs in this section are not what we want to fetch. It is found by looking
@@ -148,12 +148,11 @@ def is_anchor_in_song_field(soup_song, error_report, quiet=True):
     
     try:
         return soup_song.parent['class'][0] == 'specalt'
-        #return soup('a')[5].parent['class']
     except KeyError:
         # The parent tag doesn't have a class defined. Our rule doesn't apply.
         return False
 
-def is_song_valid_url(soup_anchor, error_report, quiet=True):
+def is_song_valid_url(soup_anchor, error_report):
     """Checks if a song's anchor is a valid URL.
     
     index pages are ignored because they are album pages instead of song pages.
@@ -175,9 +174,8 @@ def is_song_valid_url(soup_anchor, error_report, quiet=True):
     else:
         return False
 
-def get_all_songs_from_albums(error_report, quiet=True):
+def get_all_songs_from_albums(error_report):
     """Gets a list of all song URLs from an album page at Anime Lyrics."""
-    print_errors = not quiet
     # This is a debugging/diagnostics variable. It does not affect the parsing.
     albums_crawled = 0
     urls = []
@@ -204,7 +202,7 @@ def get_all_songs_from_albums(error_report, quiet=True):
                 # This file does not exist. Ignore it.
                 error_report.add_error(
                     'Error reading album {}: {}. Maybe it does not exist?'.
-                    format(albums_crawled, filename), also_print=print_errors)
+                    format(albums_crawled, filename))
                 continue
             albums_crawled += 1
             
@@ -235,46 +233,10 @@ def get_all_songs_from_albums(error_report, quiet=True):
                 urls += [anchor['href'][:anchor['href'].rfind('.')] + '.txt' \
                     for anchor in anchors]
             
-            if not quiet:
+            if DEBUG_PRINT_DIAGNOSTICS:
                 if albums_crawled % DIAGNOSTICS_MULTIPLE == 0:
                     print('Album {}: {}'.format(albums_crawled, filename))
-    if not quiet:
+    if DEBUG_PRINT_DIAGNOSTICS:
         print('Got {} song URLs from {} cached album pages.'.format(
             len(urls), albums_crawled))
     return urls
-
-def get_kanji_lyrics_path_from_song(error_report, quiet=True):
-    pass
-
-def get_kanji_lyrics_paths_from_songs(error_report, quiet=True):
-    """Looks in a cached Anime Lyrics song pages for kanji lyrics URLs.
-    
-    Anime Lyrics links to all of their songs' translations and transliterations.
-    In those pages, they have a link to the song's kanji lyrics.
-    This function looks at all cached song pages for those kanji lyrics paths.
-    For example, "Cagayake!GIRLS" has its lyrics and kanji lyrics pages here:
-    http://www.animelyrics.com/anime/keion/cagayakegirls.htm
-    http://www.animelyrics.com/anime/keion/cagayakegirls.jis
-    Returned paths are of the form "anime/keion/cagayakegirls.jis".
-    
-    @returns: A list of all songs' kanji lyrics paths.
-    """
-    
-    print_errors = not quiet
-    paths = []
-    # Loop through all of Anime Lyrics' genres to produce path names.
-    for genre in TOP_LEVEL_PAGES:
-        genre_path = normpath(path_join(DEFAULT_OUTPUT_PATH_AL, genre))
-        # Loop through all albums that exist in each genre.
-        for album in listdir(genre_path):
-            # Loop through all songs in that album.
-            album_path = normpath(path_join(genre_path, album))
-            # Find all songs. The index page is not a song, so remove it.
-            songs = [song for song in listdir(album_path) \
-                if song != 'index.html']
-            for song in songs:
-                fullpath = normpath(path_join(album_path, song))
-                with open(fullpath, 'r') as infile:
-                    alltext = infile.read()
-                soup = BeautifulSoup(alltext)
-    return paths

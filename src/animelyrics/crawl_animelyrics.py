@@ -50,15 +50,14 @@ def retrieve_indices():
         except KeyboardInterrupt:
             break
 
-def retrieve_albums(relative_urls, error_report, quiet=True, max_retries=3):
+def retrieve_albums(relative_urls, error_report, max_retries=3):
     """Saves album pages from Anime Lyrics from relative_urls.
     
     Each page is saved in index.html after being trimmed.
     If you want to save a section of URLs, slice relative_urls.
     """
     
-    print_errors = not quiet
-    if not quiet:
+    if DEBUG_PRINT_DIAGNOSTICS:
         print('Fetching Anime Lyrics top level index pages (genres).')
     debug_song_counter = 0
     for rel_url in relative_urls:
@@ -84,7 +83,7 @@ def retrieve_albums(relative_urls, error_report, quiet=True, max_retries=3):
             break
         
         if retry_count <= 0 and not success:
-            print('Failed to fetch song: {}'.format(rel_url))
+            error_report.add_error('Failed to fetch song: {}'.format(rel_url))
         else:
             fullpath = normpath(path_join(
                 DEFAULT_OUTPUT_PATH_AL, rel_url, 'index.html'))
@@ -94,10 +93,10 @@ def retrieve_albums(relative_urls, error_report, quiet=True, max_retries=3):
                 error_report, print_errors)
 
 def save_page_with_proper_markup(text, trim_func, inputpath, outputpath,
-    error_report, print_errors):
+    error_report):
     """Takes plain text markup and resaves it as valid HTML markup."""
     # Trim the content.
-    trimmed_text = trim_func(text, inputpath, error_report, print_errors)
+    trimmed_text = trim_func(text, inputpath, error_report)
     if trimmed_text:
         text = trimmed_text
     soup = BeautifulSoup(text)
@@ -105,15 +104,14 @@ def save_page_with_proper_markup(text, trim_func, inputpath, outputpath,
     with open(outputpath, 'w') as outfile:
         outfile.write(soup.prettify('utf-8'))
 
-def retrieve_songs(song_paths, error_report, quiet=True, max_retries=3):
+def retrieve_songs(song_paths, error_report, max_retries=3):
     """Saves song pages from Anime Lyrics from song_paths.
     
     Saves all online pages from Anime Lyrics produced by song_paths.
     song_paths are paths such as "anime/keion/myownroad.txt".
     """
     
-    print_errors = not quiet
-    if not quiet:
+    if DEBUG_PRINT_DIAGNOSTICS:
         print('Fetching Anime Lyrics song pages.')
     debug_song_counter = 0
     for rel_path in song_paths:
@@ -139,14 +137,14 @@ def retrieve_songs(song_paths, error_report, quiet=True, max_retries=3):
             break
         
         if retry_count <= 0 and not success:
-            print('Failed to fetch song {}: {}'.format(
+            error_report.add_error('Failed to fetch song {}: {}'.format(
                 debug_song_counter, rel_path))
         else:
             # Trim the content.
             save_page_with_proper_markup(text, trim_song, output_path,
-                output_path, error_report, print_errors)
+                output_path, error_report)
 
-def trim_album(text, fullpath, error_report, quiet=True):
+def trim_album(text, fullpath, error_report):
     """Returns the album page with unwanted text removed from it.
     
     @param text: All of the web page's text as one string.
@@ -154,13 +152,11 @@ def trim_album(text, fullpath, error_report, quiet=True):
     Returns the processed text on success or an empty string otherwise.
     """
     
-    print_errors = not quiet
     trimmed_text = ''
     if not text:
         # This is an empty file. Do not parse it.
         error_report.add_error(
-            'File is empty: {}.'.format(fullpath),
-            also_print=print_errors)
+            'File is empty: {}.'.format(fullpath))
         return trimmed_text
     
     charset_tag = extract_meta_charset_tag(text)
@@ -173,7 +169,7 @@ def trim_album(text, fullpath, error_report, quiet=True):
         # Log the failure anyways.
         error_report.add_error(
             'Failed to extract the charset of {}.'.format(
-            fullpath), also_print=print_errors)
+            fullpath))
     
     if trimmed_text or (not trimmed_text and not songs_found):
         if not songs_found:
@@ -181,7 +177,7 @@ def trim_album(text, fullpath, error_report, quiet=True):
             # Make a warning in the error log.
             error_report.add_error(
                 'Trimmed a songless page: {}.'.format(
-                fullpath), also_print=print_errors)
+                fullpath))
         
         # We have successfully trimmed the text.
         if charset_tag:
@@ -190,12 +186,11 @@ def trim_album(text, fullpath, error_report, quiet=True):
     else:
         # Trimming the text failed. Output an error report.
         error_report.add_error(
-            'Failed to trim {}.'.format(fullpath),
-            also_print=print_errors)
+            'Failed to trim {}.'.format(fullpath))
     
     return trimmed_text
 
-def trim_song(text, fullpath, error_report, quiet=True):
+def trim_song(text, fullpath, error_report):
     """Returns the song page with unwanted text removed from it.
     
     @param text: All of the web page's text as one string.
@@ -203,13 +198,11 @@ def trim_song(text, fullpath, error_report, quiet=True):
     Returns the processed text on success or an empty string otherwise.
     """
     
-    print_errors = not quiet
     trimmed_text = ''
     if not text:
         # This is an empty file. Do not parse it.
         error_report.add_error(
-            'File is empty: {}.'.format(fullpath),
-            also_print=print_errors)
+            'File is empty: {}.'.format(fullpath))
         return trimmed_text
 
     charset_tag = extract_meta_charset_tag(text)
@@ -218,13 +211,13 @@ def trim_song(text, fullpath, error_report, quiet=True):
         # Log the failure anyways.
         error_report.add_error(
             'Failed to extract the charset of {}.'.format(
-            fullpath), also_print=print_errors)
+            fullpath))
     
     trimmed_text = parse_anime_lyrics.remove_text_junk_from_song(text)
     charset_tag = extract_meta_charset_tag(text)
     if not trimmed_text:
         error_report.add_error(
-            'Failed to trim: {}.'.format(fullpath), also_print=print_errors)
+            'Failed to trim: {}.'.format(fullpath))
     elif charset_tag:
         trimmed_text = '\n'.join([charset_tag,trimmed_text])
     
@@ -242,29 +235,29 @@ def read_song_paths_from_file(filename):
         paths = [line.strip() for line in infile.readlines()]
     return paths
 
-def main(quiet=True):
+def main():
     error_report = ErrorReport()
     try:
-        if not quiet:
+        if DEBUG_PRINT_DIAGNOSTICS:
             print('Making output directories for Anime Lyrics.')
         #create_dir_recursively(DEFAULT_OUTPUT_PATH_AL)
         #create_dir_recursively(DEFAULT_SONG_INDEX_PATH_AL)
         #retrieve_indices()
         #song_list = parse_anime_lyrics.get_all_albums_from_index()
-        #retrieve_albums(song_list, error_report, quiet)
-        #paths = parse_anime_lyrics.get_all_songs_from_albums(error_report,quiet)
+        #retrieve_albums(song_list, error_report)
+        #paths = parse_anime_lyrics.get_all_songs_from_albums(error_report)
         #write_song_paths_to_file(paths)
         if isfile('test.html'):
             # Do a simple test to see if we can successfully trim a song.
             with open('test.html', 'r') as infile:
                 text = infile.read()
             save_page_with_proper_markup(text, trim_song, 'test.html',
-                'out.html', error_report, not quiet)
+                'out.html', error_report)
         #"""
         paths = read_song_paths_from_file(SONGS_LIST_FILEPATH)
         if len(argv) == 3:
             retrieve_songs(paths[int(argv[1]):int(argv[2])],
-                error_report, quiet)
+                error_report)
         else:
             print('Arguments: paths_start, paths_end')
         #"""
@@ -280,10 +273,10 @@ def main(quiet=True):
     finally:
         error_filename = error_report.get_suitable_report_filename()
         error_report.write_out(error_filename)
-        if not quiet:
+        if DEBUG_PRINT_DIAGNOSTICS:
             print('This script took {:.2f} seconds to run.'.format(
                 time() - START_TIME))
 
 
 if __name__ == '__main__':
-    main(DEBUG_BE_QUIET)
+    main()
