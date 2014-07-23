@@ -18,16 +18,6 @@ http://www.animelyrics.com/
 Saved pages are put in {} by default.
 """.format(DEFAULT_OUTPUT_PATH_AL)
 
-# All pages on the website we are crawling that index their content.
-TOP_LEVEL_PAGES = [
-'anime',
-'jpop',
-'game',
-'dance',
-'dancecd',
-'doujin',
-]
-
 
 def save_url_locally(url, save_path):
     """Saves the passed URL locally.
@@ -239,46 +229,6 @@ def trim_song(text, fullpath, error_report, quiet=True):
         trimmed_text = '\n'.join([charset_tag,trimmed_text])
     
     return trimmed_text
-
-# DEPRECATED
-# This function probably still functions correctly, but there is
-# no longer a need to use it.
-def trim_local_album_pages(error_report, quiet=True):
-    """Removes junk from album pages and saves them in nice.html
-    
-    This is a one-time use function that will trim every crawled
-    album page stored on disk.
-    """
-    
-    from os import listdir
-    from os.path import isfile
-    
-    print_errors = not quiet
-    # Loop through all of Anime Lyrics' genres to produce path names.
-    for genre in TOP_LEVEL_PAGES:
-        genre_path = normpath(path_join(DEFAULT_OUTPUT_PATH_AL, genre))
-        # Loop through all albums that exist in each genre.
-        for album in listdir(genre_path):
-            # Get the album web page stored as index.html .
-            fullpath = normpath(path_join(
-                genre_path, album, 'index.html'))
-            if not isfile(fullpath):
-                error_report.add_error(
-                    'File does not exist: {}.'.format(fullpath),
-                    also_print=print_errors)
-                continue
-            
-            with open(fullpath, 'r') as infile:
-                text = infile.read()
-            text = trim_album(text, fullpath, error_report,
-                print_errors)
-            if text:
-                soup = BeautifulSoup(text)
-                # Save the cleaned up page locally.
-                nicepath = normpath(path_join(
-                    genre_path, album, 'nice.html'))
-                with open(nicepath, 'w') as outfile:
-                    outfile.write(soup.prettify('utf-8'))
 
 def write_song_paths_to_file(paths):
     """Writes all song URLs to a file for later access."""

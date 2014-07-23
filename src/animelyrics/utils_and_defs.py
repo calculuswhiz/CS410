@@ -22,9 +22,10 @@ START_TIME = time()
 
 # URL and directory constants for Anime Lyrics dot Com (AL).
 HOME_PAGE_AL = 'http://www.animelyrics.com/'
-DEFAULT_OUTPUT_PATH_AL = normpath('../crawled/animelyrics/')
+DEFAULT_OUTPUT_PATH_AL = normpath('../../crawled/animelyrics/')
 DEFAULT_SONG_INDEX_PATH_AL = path_join(DEFAULT_OUTPUT_PATH_AL, 'indices/')
 SONGS_LIST_FILEPATH = normpath(path_join(DEFAULT_OUTPUT_PATH_AL, 'songs.txt'))
+OUTPUT_PATH_AL_INDEXABLE = normpath('../../indexable/animelyrics/')
 
 # The parser that BeautifulSoup will use for reading the web pages.
 # http://www.crummy.com/software/BeautifulSoup/bs4/doc/#parser-installation
@@ -40,6 +41,16 @@ charset_regex = re.compile('<meta .*charset=.*>',
 DIAGNOSTICS_MULTIPLE = 500
 # This is the same, but applies to URLs we are fetching.
 DIAGNOSTICS_URL_MULTIPLE = 1
+
+# All pages on the website we are crawling that index their content.
+TOP_LEVEL_PAGES = [
+'anime',
+'jpop',
+'game',
+'dance',
+'dancecd',
+'doujin',
+]
 
 # Keep track of all errors and write them out when the program ends.
 class ErrorReport(object):

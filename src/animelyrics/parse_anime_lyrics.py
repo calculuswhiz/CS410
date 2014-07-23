@@ -188,6 +188,8 @@ def get_all_songs_from_albums(error_report, quiet=True):
         genres.remove('songs.txt')
     except ValueError:
         pass
+    except KeyboardInterrupt:
+        raise
     except WindowsError:
         pass
     
