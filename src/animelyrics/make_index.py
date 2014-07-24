@@ -28,7 +28,7 @@ def get_kanji_lines(kanji_div):
     # Remove the newlines put in the Anime Lyrics HTML source files.
     lines = [line.replace('\n', '') for line in lines]
     # Remove the whitespace put in by the Beautiful Soup pretty printer.
-    lines = [line.replace('     ', '') for line in lines]
+    lines = [line.replace(' ', '') for line in lines]
     # Put all lines into one string for writing out to disk.
     return '\n'.join(lines)
 
@@ -60,7 +60,9 @@ def make_indexable_doc(fullpath, error_report):
     decomposing = True
     while decomposing:
         try:
-            soup.a.decompose()
+            while soup.a is not None:
+                soup.a.replace_with(soup.a.string)
+            decomposing = False
         except AttributeError:
             decomposing = False
     
