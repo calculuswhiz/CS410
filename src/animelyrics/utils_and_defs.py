@@ -2,7 +2,7 @@
 # coding: utf-8
 
 from os import makedirs, listdir
-from os.path import normpath, isdir, join as path_join
+from os.path import normpath, isdir, pardir, join as path_join, sep as path_sep
 from time import sleep, time
 from random import randint
 import re
@@ -26,6 +26,10 @@ DEFAULT_OUTPUT_PATH_AL = normpath('../../crawled/animelyrics/')
 DEFAULT_SONG_INDEX_PATH_AL = path_join(DEFAULT_OUTPUT_PATH_AL, 'indices/')
 SONGS_LIST_FILEPATH = normpath(path_join(DEFAULT_OUTPUT_PATH_AL, 'songs.txt'))
 OUTPUT_PATH_AL_INDEXABLE = normpath('../../indexable/animelyrics/')
+# Where the parent directories are. Used to back reference where crawled and
+# indexable directories are by using crawled_file[ABOVE_CRAWLED_DIR:]
+PARENT_DIRS = ''.join([pardir, path_sep, pardir, path_sep])
+ABOVE_CRAWLED_DIR = len(PARENT_DIRS) + len('crawled') + len(path_sep)
 
 # The parser that BeautifulSoup will use for reading the web pages.
 # http://www.crummy.com/software/BeautifulSoup/bs4/doc/#parser-installation

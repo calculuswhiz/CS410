@@ -267,8 +267,7 @@ def main():
         from sys import exc_info
         error_report.add_error(
             'Unexpected error of type {}\n{}\n{}'.format(
-            exc_info()[0], exc_info()[1], exc_info()[2]),
-            also_print=False)
+            exc_info()[0], exc_info()[1], exc_info()[2]))
         raise
     finally:
         error_filename = error_report.get_suitable_report_filename()
