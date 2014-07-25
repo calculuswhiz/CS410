@@ -111,7 +111,7 @@ def main(error_report):
     song_index = []
     for genre in TOP_LEVEL_PAGES[0:1]:
         genre_path = normpath(path_join(DEFAULT_OUTPUT_PATH_AL, genre))
-        for album in listdir(genre_path)[0:3]:
+        for album in listdir(genre_path)[0:5]:
             album_path = normpath(path_join(genre_path, album))
             # Get all songs. The index page is not a song.
             songs = [normpath(path_join(album_path, song)) for \

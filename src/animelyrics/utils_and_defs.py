@@ -47,7 +47,10 @@ charset_regex = re.compile('<meta .*charset=.*>',
     re.UNICODE | re.IGNORECASE)
 # The regex string that looks for Japanese text. Specifically, any hiragana,
 # katakana, or kanji character.
-RE_JAPANESE_GLYPH = '[\p{Hiragana}\p{Katakana}\u4e00-\u9faf]'
+# Note: \u4e00-\u9faf is the range of kanji. \u3005 is the kanji repeater: 々.
+# \W means any non-alphanumeric char.
+# http://www.rikai.com/library/kanjitables/kanji_codes.unicode.shtml
+RE_JAPANESE_GLYPH = '[\p{Hiragana}\p{Katakana}\u4e00-\u9faf\W\u3005]'
 # The regex that looks for Japanese characters that are separated by whitespace.
 # For example, it will look for "き キ" or "今     は" and such.
 spaced_jp_regex = re.compile(RE_JAPANESE_GLYPH + '\s+' + RE_JAPANESE_GLYPH,
