@@ -1,6 +1,7 @@
 #!usr/bin/env python
 # coding: utf-8
 
+from sys import argv
 from os.path import splitext, dirname
 import codecs
 from utils_and_defs import *
@@ -121,7 +122,13 @@ def make_indexable_doc(fullpath, error_report):
     
     # Remove all anchors that surround kanji.
     while soup.a is not None:
-        soup.a.replace_with(soup.a.string)
+        if soup.a.string is None:
+            # Eradicate the anchor.
+            soup.a.decompose()
+        else:
+            # Replace the anchor with the text within the anchor.
+            # This is done because Anime Lyrics surrounds kanji with mousovers.
+            soup.a.replace_with(soup.a.string)
     
     # Get the div tag containing all kanji text.
     try:
@@ -141,6 +148,12 @@ def main(error_report):
     """
     create_dir_recursively(OUTPUT_PATH_AL_INDEXABLE)
     
+    # The first argument of the program is optionally a starting index
+    if len(argv) > 1:
+        start_point = int(argv[1])
+    else:
+        start_point = 0
+    
     num_songs = 0
     song_index = []
     for genre in TOP_LEVEL_PAGES:
@@ -154,6 +167,8 @@ def main(error_report):
             songs = [song for song in songs if song.endswith('.jis')]
             for song in songs:
                 num_songs += 1
+                if num_songs < start_point:
+                    continue
                 if DEBUG_PRINT_DIAGNOSTICS:
                     print('Making doc {} for {}.'.format(num_songs, song))
                 make_indexable_doc(song, error_report)
