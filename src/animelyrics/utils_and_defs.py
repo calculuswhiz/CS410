@@ -33,6 +33,7 @@ DEFAULT_OUTPUT_PATH_AL = normpath('../../crawled/animelyrics/')
 DEFAULT_SONG_INDEX_PATH_AL = path_join(DEFAULT_OUTPUT_PATH_AL, 'indices/')
 SONGS_LIST_FILEPATH = normpath(path_join(DEFAULT_OUTPUT_PATH_AL, 'songs.txt'))
 OUTPUT_PATH_AL_INDEXABLE = normpath('../../indexable/animelyrics/')
+DOC_LIST_FILENAME = normpath('../../indexable/docs.txt')
 # Where the parent directories are. Used to back reference where crawled and
 # indexable directories are by using crawled_file[ABOVE_CRAWLED_DIR:]
 PARENT_DIRS = ''.join([pardir, path_sep, pardir, path_sep])
