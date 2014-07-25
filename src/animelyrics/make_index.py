@@ -91,6 +91,9 @@ def get_artist(plain_text):
             # Extract the perfomer's name from beyond the colon.
             performer = plain_text[colon_idx + 1 : plain_text.find(
                 '\n', colon_idx)].strip()
+    # Because the soup was changed to Unicode, but we aren't working in the
+    # soup, we need to convert the performer's text to Unicode as well.
+    performer = unicode(performer, encoding='utf8')
     return performer
 
 def write_doc(fullpath, song_name, artist, textformat, lyrics, error_report):
@@ -140,9 +143,9 @@ def main(error_report):
     
     num_songs = 0
     song_index = []
-    for genre in TOP_LEVEL_PAGES[0:1]:
+    for genre in TOP_LEVEL_PAGES:
         genre_path = normpath(path_join(DEFAULT_OUTPUT_PATH_AL, genre))
-        for album in listdir(genre_path)[0:5]:
+        for album in listdir(genre_path):
             album_path = normpath(path_join(genre_path, album))
             # Get all songs. The index page is not a song.
             songs = [normpath(path_join(album_path, song)) for \
