@@ -5,7 +5,14 @@ from os import makedirs, listdir
 from os.path import normpath, isdir, pardir, join as path_join, sep as path_sep
 from time import sleep, time
 from random import randint
-import re
+try:
+    # Import regex which will be supported in the future.
+    import regex as re
+except ImportError:
+    # Import re which regex will replace. Maybe it will just work?
+    import re
+    print('Warning: Unable to import "regex".')
+    print('If this program crashes, get the "regex" module for Python.')
 import urllib2
 
 __doc__ = """Utilities and definitions for all of our codebase."""
@@ -38,6 +45,17 @@ BS_PARSER = 'lxml'
 # The regex that looks for the meta tag which states the file encoding.
 charset_regex = re.compile('<meta .*charset=.*>',
     re.UNICODE | re.IGNORECASE)
+# The regex string that looks for Japanese text. Specifically, any hiragana,
+# katakana, or kanji character.
+RE_JAPANESE_GLYPH = '[\p{Hiragana}\p{Katakana}\u4e00-\u9faf]'
+# The regex that looks for Japanese characters that are separated by whitespace.
+# For example, it will look for "き キ" or "今     は" and such.
+spaced_jp_regex = re.compile(RE_JAPANESE_GLYPH + '\s+' + RE_JAPANESE_GLYPH,
+    re.UNICODE)
+# This is the function that goes along with the above regex during substitution.
+def remove_inner_spaces(m):
+    """Removes a MatchObject's space between the first and last characters."""
+    return m.group(0)[0] + m.group(0)[-1]
 
 # How often to display diagnostics. Using a counter, use the modulus on it.
 # Usage: if counter % DIAGNOSTICS_MULTIPLE == 0:

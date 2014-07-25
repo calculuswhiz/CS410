@@ -2,6 +2,7 @@
 # coding: utf-8
 
 from os.path import splitext, dirname
+import codecs
 from utils_and_defs import *
 from bs4 import BeautifulSoup
 
@@ -12,23 +13,52 @@ non-"index.html" pages and turns them into a format Lucene can
 understand.
 """
 
+def remove_ws_between_jp_text(jp_text):
+    """Removes the whitespace from between Japanese text.
+    
+    This function quits if it tries too many substitutions.
+    
+    @param jp_text: A Unicode string to parse.
+    @returns: The processed Unicode string.
+    """
+    
+    num_substitutions = 0
+    reached_steady_state = False
+    while not reached_steady_state and num_substitutions < 10:
+        new_text = spaced_jp_regex.sub(remove_inner_spaces, jp_text)
+        reached_steady_state = new_text == jp_text
+        jp_text = new_text
+        num_substitutions += 1
+    return jp_text
+
 def get_kanji_lines(kanji_div):
     """Takes the div tag as a string and extracts the lines of text.
     
     Retrieve the text using something like str(beautiful_soup_instance('div')).
     
+    @param kanji_div: The BeautifulSoup instance's div tag with lyrics in it.
     @returns: A string with the lyrics of the song in it.
     """
     
+    # Anime Lyrics separated their lyrics with <br> tags.
     lines = kanji_div.split('<br/>')
     # From the first line, remove the initial <div> tag.
     lines[0] = lines[0][lines[0].find('>') + 1:]
     # Similarly, remove the closing </div> tag from the last line.
     lines[-1] = lines[-1][:lines[-1].rfind('</div')]
-    # Remove the newlines put in the Anime Lyrics HTML source files.
-    lines = [line.replace('\n', '') for line in lines]
-    # Remove the whitespace put in by the Beautiful Soup pretty printer.
-    lines = [line.replace(' ', '') for line in lines]
+    # Do bulk processing on all lines.
+    for i in range(len(lines)):
+        line = lines[i]
+        # Remove the newlines put in the Anime Lyrics HTML source files.
+        line = line.replace('\n', '')
+        # Remove all whitespace before and after the lines.
+        line = line.strip()
+        # In order to have consistent regex calculations, make the string utf8.
+        line = unicode(line, encoding='utf8', errors='strict')
+        # Continually remove whitespace between Japanese characters until
+        # either we reach a steady state or we have done too many substitutions.
+        line = remove_ws_between_jp_text(line)
+        lines[i] = line
     # Put all lines into one string for writing out to disk.
     return '\n'.join(lines)
 
@@ -46,7 +76,7 @@ def write_doc(fullpath, lyrics, textformat, error_report):
     
     song_name = 'Song Name'
     artist = 'Artist'
-    with open(docpath, 'w') as outfile:
+    with codecs.open(docpath, 'w', encoding='utf8') as outfile:
         outfile.write('\n'.join([url, song_name, artist, textformat, lyrics]))
 
 def make_indexable_doc(fullpath, error_report):
@@ -57,14 +87,8 @@ def make_indexable_doc(fullpath, error_report):
         soup = BeautifulSoup(infile.read())
     
     # Remove all anchors that surround kanji.
-    decomposing = True
-    while decomposing:
-        try:
-            while soup.a is not None:
-                soup.a.replace_with(soup.a.string)
-            decomposing = False
-        except AttributeError:
-            decomposing = False
+    while soup.a is not None:
+        soup.a.replace_with(soup.a.string)
     
     # Get the div tag containing all kanji text.
     try:
