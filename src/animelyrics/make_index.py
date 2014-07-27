@@ -105,8 +105,8 @@ def write_doc(fullpath, song_name, artist, textformat, lyrics, error_report):
     # Replace Windows backslashes with slashes for URLs.
     url = HOME_PAGE_AL + rel_addr.replace('\\', '/')
     # Prepend the directory of the indexable pages to the output path.
-    # Then, remove the file's extension and replace it with .txt .
-    docpath = splitext(path_join(OUTPUT_PATH_AL_INDEXABLE, rel_addr))[0]+'.txt'
+    # Then, append .txt to the file's extension.
+    docpath = path_join(OUTPUT_PATH_AL_INDEXABLE, rel_addr)+'.txt'
     create_dir_recursively(dirname(docpath))
     
     with codecs.open(docpath, 'w', encoding='utf8') as outfile:
@@ -172,7 +172,7 @@ def main(error_report):
                 if DEBUG_PRINT_DIAGNOSTICS:
                     print('Making doc {} for {}.'.format(num_songs, song))
                 make_indexable_doc(song, error_report)
-            song_index += [song[ABOVE_CRAWLED_DIR:] for song in songs]
+            song_index += [song[ABOVE_CRAWLED_DIR:]+'.txt' for song in songs]
     
     with open(DOC_LIST_FILENAME, 'w') as outfile:
         outfile.write('\n'.join(song_index))
