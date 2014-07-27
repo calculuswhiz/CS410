@@ -8,8 +8,8 @@ import java.util.ArrayList;
 public class Runner {
 	final static String _dataset = "mooc";
 	final static String _indexPath = "lucene-mooc-index";
-	final static String _prefix = "crawl/";
-	final static String _fileList = "courses.txt";
+	final static String _prefix = "../../indexable/";
+	final static String _fileList = "docs.txt";
 
 	public static void main(String[] args) throws IOException {
 		if (args.length == 1 && args[0].equalsIgnoreCase("--index"))

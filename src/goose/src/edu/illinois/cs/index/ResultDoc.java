@@ -5,6 +5,8 @@ public class ResultDoc {
 	private String _url = "[no URL]";
 	private String _title = "[no title]";
 	private String _content = "[no content]";
+	private String _artist = "[no artist]";
+	private String _lang = "[no language]";
 
 	public ResultDoc(int id) {
 		_id = id;
@@ -25,6 +27,16 @@ public class ResultDoc {
 
 	public ResultDoc url(String url) {
 		_url = url;
+		return this;
+	}
+
+	public ResultDoc artist(String artist) {
+		_artist = artist;
+		return this;
+	}
+
+	public ResultDoc lang(String lang) {
+		_lang = lang;
 		return this;
 	}
 

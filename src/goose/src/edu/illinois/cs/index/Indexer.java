@@ -61,6 +61,14 @@ public class Indexer {
 		_titleFieldType.setIndexed(true);
 		_titleFieldType.setStored(true);
 
+		FieldType _artistFieldType = new FieldType();
+		_artistFieldType.setIndexed(true);
+		_artistFieldType.setStored(true);
+
+		FieldType _langFieldType = new FieldType();
+		_langFieldType.setIndexed(true);
+		_langFieldType.setStored(true);
+
 		FieldType _contentFieldType = new FieldType();
 		_contentFieldType.setIndexed(true);
 		_contentFieldType.setStored(true);
@@ -80,17 +88,20 @@ public class Indexer {
 			}
 			docReader.close();
 
-			// 1st line: url, 2nd: page title, rest: text content
-			if (lines.size() < 3)
+			// 1st line: url, 2nd: song title, 3rd: artist/performer,
+			// 4th: language, rest: text content
+			if (lines.size() < 5)
 				continue;
 			
 			String content = new String();
-			for(int i = 2; i < lines.size(); ++i)
+			for(int i = 4; i < lines.size(); ++i)
 				content += lines.get(i) + " ";
 
 			Document doc = new Document();
 			doc.add(new Field("url", lines.get(0), _urlFieldType));
 			doc.add(new Field("title", lines.get(1), _titleFieldType));
+			doc.add(new Field("artist", lines.get(2), _artistFieldType));
+			doc.add(new Field("lang", lines.get(3), _langFieldType));
 			doc.add(new Field("content", content, _contentFieldType));
 			writer.addDocument(doc);
 
