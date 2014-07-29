@@ -15,6 +15,7 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
+import org.apache.lucene.analysis.ja.*;
 
 public class Indexer {
 
@@ -25,7 +26,7 @@ public class Indexer {
 	 * @throws IOException
 	 */
 	private static IndexWriter setupIndex(String indexPath) throws IOException {
-		Analyzer analyzer = new SpecialAnalyzer();
+		Analyzer analyzer = new JapaneseAnalyzer(Version.LUCENE_46, null, JapaneseTokenizer.Mode.SEARCH, JapaneseAnalyzer.getDefaultStopSet(), JapaneseAnalyzer.getDefaultStopTags());
 		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_46,
 				analyzer);
 		config.setOpenMode(OpenMode.CREATE);

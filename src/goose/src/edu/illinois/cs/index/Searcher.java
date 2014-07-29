@@ -21,11 +21,15 @@ import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
 import org.apache.lucene.search.similarities.BM25Similarity;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
+import org.apache.lucene.analysis.ja.*;
+//import org.apache.lucene.analysis.ja.Tokenizer.*;
+
+import java.util.HashSet;
 
 public class Searcher
 {
     private IndexSearcher indexSearcher;
-    private SpecialAnalyzer analyzer;
+    private JapaneseAnalyzer analyzer;
     private static SimpleHTMLFormatter formatter;
     private static final int numFragments = 4;
     private static final String defaultField = "content";
@@ -45,7 +49,11 @@ public class Searcher
             indexSearcher.setSimilarity(new BM25Similarity());     // BM25Similarity exists in Lucene
             //indexSearcher.setSimilarity(new TFIDFSimilarity());  // this is our custom similarity function
             //indexSearcher.setSimilarity(new SimpleSimilarity()); // simple boolean occurrence example function
-            analyzer = new SpecialAnalyzer();
+//            Builder builder = JapaneseTokenizer.builder();
+//            builder.mode(Mode.SEARCH);
+            //Tokenizer tokenizer = builder.build();//*/
+            //JapaneseTokenizer tokenizer = new JapaneseTokenizer(reader, null, true, JapaneseTokenizer.Mode.SEARCH);
+            analyzer = new JapaneseAnalyzer(Version.LUCENE_46, null, JapaneseTokenizer.Mode.SEARCH, JapaneseAnalyzer.getDefaultStopSet(), JapaneseAnalyzer.getDefaultStopTags());
             formatter = new SimpleHTMLFormatter("<strong>", "</strong>");
         }
         catch(IOException exception)
