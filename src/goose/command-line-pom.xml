@@ -43,6 +43,7 @@
     <jettyVersion>8.1.7.v20120910</jettyVersion>
     <luceneVersion>4.6.1</luceneVersion>
     <commonsNetVersion>2.0</commonsNetVersion>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <dependencies>
     <dependency>
