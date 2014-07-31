@@ -1,0 +1,88 @@
+% CS 410 Summer 2014 LaTeX template, based off of
+% http://www.acm.org/sigs/publications/proceedings-templates
+
+\documentclass{acm} % this finds the file "acm.bst"
+
+\usepackage{cite,graphicx}
+
+% this lets you include clickable URLs with \url{}
+\usepackage[hidelinks]{hyperref}
+
+\begin{document}\sloppy % sloppy necessary here
+
+\title{JLyrics
+    \titlenote{Submitted as the final project for CS 410 Summer 2014.}
+}
+
+\numberofauthors{2} % make sure you set this number
+\author{%
+    \alignauthor Larry Resnik \\
+    \affaddr{Department of Computer Engineering}\\
+    \affaddr{University of Illinois at Urbana-Champaign}\\
+    \email{lsresni2@illinois.edu}
+    \alignauthor Zach Bian\\
+    \affaddr{Department of Computer Engineering}\\
+    \affaddr{University of Illinois at Urbana-Champaign}\\
+    \email{zbian2@illinois.edu}
+}
+\maketitle
+
+\begin{abstract}
+Making a search engine that finds the Japanese song that some lyrics came from.
+\end{abstract}
+
+\keywords{japanese, music, search, anime, vocaloid}
+
+\section{Introduction}
+
+Our project was chosen to solve certain problems we had noticed in terms of information retrieval. For starters, looking up what song had a particular set of lyrics would not necessarily bring you to the same website storing those lyrics as another website also storing song lyrics. The information we want is sparsely distributed and uploaded.
+
+\section{Motivation}
+
+As for why someone would want to look up the song that some lyrics came from, there are a couple answers to that question.
+
+First of all, a song one may come across by chance may have little information attached to it. Perhaps the song came from a medley or from a YouTube re-upload without a detailed title or tags. In that case, the listener has no background to go on to find the song aside from the lyrics they have heard. Moreover, human memory and recognition is finite. If we were to passively hear a song we like, we could only catch portions of the song's lyrics. Ideally, just those lyrics alone should be enough to help someone find that song.
+
+Secondly, finding information on the song itself can assist the listener in learning foreign languages. Repetition is the best methods for learning. Listening to enjoyable music and recognizing new words each time the song is played is a fun way to strengthen one's language capabilities through repetition.
+
+\section{Related Work}
+
+What similar things are already out there? You can cite things like
+this~\cite{manning-ir-book} and this~\cite{zhai-smoothing}. I got the second
+reference bibtex from \url{http://dl.acm.org/citation.cfm?id=984322}. I just
+simplified the bibtex reference names to ``manning-ir-book'' and
+``zhai-smoothing''. Also, did you notice that URL and citations were clickable?
+
+\section{Experiments}
+
+Did you perform any experiments?
+
+\section{Discussion}
+
+Are there any interesting questions or findings that should be discussed?
+
+\section{Conclusion}
+
+Here's why our project is great, and this is what we told you in the paper.
+
+\section*{Acknowledgments}
+
+The authors would like to thank people for things. You can delete this section
+if you want.
+
+\appendix
+
+\section{Division of Labor}
+
+\begin{enumerate}
+\item Crawling and Parsing of Anime Lyrics dot Com: Larry
+\item Crawling and Parsing of Piapro: Zach
+\item Initial Outline: Larry, Zach
+\item Midterm Report: Larry, Zach
+\item Lucene Setup: Larry
+\end{enumerate}
+
+\bibliographystyle{plain}
+\bibliography{bib} % "bib" is the name of the .bib file
+
+\end{document}
