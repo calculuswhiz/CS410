@@ -6,16 +6,6 @@
 #include <fstream>
 #include <string>
 
-/*#define HIRAGANA    ustring("[\u3041-\u3096]")
-#define KATAKANA    ustring("[\u30A0-\u30FF]")
-#define KANJI       ustring("[\u3400-\u4DB5\u4E00-\u9FCB\uF900-\uFA6A]")
-#define RADICALS    ustring("[\u2E80-\u2FD5]")
-#define HALFKAT     ustring("[\uFF5F-\uFF9F]")
-#define SYMBOL      ustring("[\u3000-\u303F]")
-#define MISC        ustring("[\u31F0-\u31FF\u3220-\u3243\u3280-\u337F]")
-#define ALPHANUM    ustring("[\uFF01-\uFF5E]")
-#define ALLOFTHEM   HIRAGANA +"|"+ KATAKANA +"|"+ KANJI +"|"+ RADICALS +"|"+ HALFKAT +"|"+ SYMBOL +"|"+ MISC +"|"+ ALPHANUM*/
-
 using namespace std;
 using namespace Glib;
 // using namespace Glib;
@@ -27,12 +17,15 @@ int main()
     ifstream myfile("lyric1.html");
     
     int foundTitle=0;
+    int foundUser =0;
     int foundEntry=0;
     // int scanning = 0;
     int terminated=0;
     
     // Found in the title bar
-    RefPtr<Regex> titleRX = Regex::create("「.*」");
+    RefPtr<Regex> titleRX = Regex::create("(?<=「).*(?=」)");
+    
+    RefPtr<Regex> userRX = Regex::create("(?<=\"/).*?(?=\" class=\"i_icon)");
     
     // Matches the line where the lyrics begin.
     RefPtr<Regex> entryRX = Regex::create("p id=\"_txt_main\"");
@@ -52,6 +45,13 @@ int main()
             if(titleRX->match(ustring(testString), mInfo))
             {
                 foundTitle=1;
+            }
+        }
+        else if(!foundUser)
+        {
+            if(userRX->match(ustring(testString), mInfo))
+            {
+                foundUser=1;
             }
         }
         else if(!foundEntry)
@@ -79,7 +79,7 @@ int main()
         {
             for(int i=0; i<mInfo.get_match_count(); i++)
             {
-                cout << mInfo.fetch(i) << endl;
+                cout << mInfo.fetch(0) << endl;
             }
             
             mInfo.next();

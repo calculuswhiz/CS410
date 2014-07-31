@@ -1,4 +1,4 @@
-#include <glibmm-2.4/glibmm/ustring.h>
+    #include <glibmm-2.4/glibmm/ustring.h>
 #include <glibmm-2.4/glibmm/regex.h>
 // #include <glib-2.0/glib/gregex.h>
 #include <iostream>
@@ -18,26 +18,39 @@
 
 using namespace std;
 using namespace Glib;
-// using namespace Glib;
 
 int main()
 {
     setlocale(LC_ALL, "en_US.utf8");
     string testString;  // Regular string buffer for std:: functions.    
     ifstream myfile("page1.html");
+    ustring trackString;
     
-    RefPtr<Regex> regex = Regex::create("/t/.{4}");
+    RefPtr<Regex> regex = Regex::create("(?<=/t/).{4}");
     MatchInfo mInfo;
+    int found=0;
     
     while( getline(myfile, testString) )
     {
-        regex->match(ustring(testString), mInfo);
+        if( ustring(testString).find( "見つかりませんでした。")==ustring::npos )
+            regex->match(ustring(testString), mInfo);
+        else
+            break;
+        
+        // cout << "what.\n";
         
         while(mInfo.matches())
         {
             for(int i=0; i<mInfo.get_match_count(); i++)
             {
-                cout << mInfo.fetch(i) << endl;
+                trackString = mInfo.fetch(i);
+                if(!trackString.empty())
+                {
+                    found++;
+                }
+                
+                if( found&1==1 )
+                    cout << trackString << endl;
             }
             
             mInfo.next();
