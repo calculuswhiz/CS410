@@ -2,12 +2,15 @@
 % http://www.acm.org/sigs/publications/proceedings-templates
 
 \documentclass{acm} % this finds the file "acm.bst"
+\usepackage{easyfig}
 \usepackage[utf8]{inputenc}
 \usepackage{CJK,CJKspace,CJKpunct}
 \usepackage{cite,graphicx}
 
 % this lets you include clickable URLs with \url{}
 \usepackage[hidelinks]{hyperref}
+
+\easyfigdefault{placement={!htb}, max width=20pc, max height=\textheight, keepaspectratio}
 
 \pdfmapline{=unisong@Unicode@ <ipam.ttf}
 \begin{document}\sloppy % sloppy necessary here
@@ -45,9 +48,9 @@ As for why someone would want to look up the song that some lyrics came from, th
 
 First of all, a song one may come across by chance may have little information attached to it. Perhaps the song came from a medley or from a YouTube re-upload without a detailed title or tags. In that case, the listener has no background to go on to find the song aside from the lyrics they have heard. Moreover, human memory and recognition is finite. If we were to passively hear a song we like, we could only catch portions of the song's lyrics. Ideally, just those lyrics alone should be enough to help someone find that song.
 
-Secondly, finding information on the song itself can assist the listener in learning foreign languages. Repetition is the best methods for learning. Listening to enjoyable music and recognizing new words each time the song is played is a fun way to strengthen one's language capabilities through repetition. Many music players such as foobar2000 and Rocket Player will display the lyrics of a song that is being played so long as those lyrics have been embedded into the music file as a tag. This feature can be used in tandem with the learner's interest in following along with the song to promote learning the language. If one is clever, they could put the same lyrics into the karaoke variant of the song and practice singing to improve their reading and speaking abilities. Regardless of the reason, they user would need to find the full lyrics from the song. We want to help with this cause.
+Secondly, finding information on the song itself can assist the listener in learning foreign languages. Repetition is the best methods for learning. Listening to enjoyable music and recognizing new words each time the song is played is a fun way to strengthen one's language capabilities through repetition. Many music players such as foobar2000 and Rocket Player will display the lyrics of a song that is being played so long as those lyrics have been embedded into the music file as a tag. An example screenshot of Rocket Player showing a song's lyrics is in Figure~\ref{fig:res/rocket-player.png} This feature can be used in tandem with the learner's interest in following along with the song to promote learning the language. If one is clever, they could put the same lyrics into the karaoke variant of the song and practice singing to improve their reading and speaking abilities. Regardless of the reason, they user would need to find the full lyrics from the song. We want to help with this cause.
 
-TODO: Picture of Rocket Player or foobar2000
+\Figure[caption="Rocket Player Displaying Song Lyrics]{res/rocket-player.png}
 
 Finally, if someone finds a song they like, there is a good chance that the songs made by that song's producer would also be likable. 
 
@@ -162,9 +165,15 @@ This word, 文字 (moji meaning character(s)), shows its binary representations 
 
 The pages we took from Piapro were stored in UTF-8, but we had a good number of pages from Anime Lyrics dot Com that were stored in Shift-JIS. Parsing these web pages and producing indexable documents from them required careful attention of the encodings each web page was chosen to be encoded in.
 
-Despite all efforts to keep our encodings straight, nothing could get Windows' command prompt, cmd, to behave as we would have wanted it to.
+Despite all efforts to keep our encodings straight, nothing could get Windows' command prompt, cmd, to behave as we would have wanted it to. As shown in Figure~\ref{fig:res/cmd_search_fail.png}, trying to look for the words 聞こえる and 愛 fail to produce results. We wonder if it is because the words we pass to the Java program through cmd are getting re-encoded and thereby messing up our results.
 
-TODO: Add pictures of command prompts
+\Figure[caption="cmd.exe on Windows Failure"]{res/cmd_search_fail.png}
+
+While testing our project, we had access to Linux computers through SSH thanks to the University of Illinois at Urbana Champaign's Engineering WorkStations (UIUC's EWS). By using the Windows program called PuTTY to interact with the Java-based searching program, we got to see perfect results as shown in Figure~\ref{fig:res/putty_search_success.png}. It raises the question of where the encoding transformations could be going wrong since PuTTY appears to be a terminal application just like cmd.
+
+\Figure[caption="PuTTY on Windows Success"]{res/putty_search_success.png}
+
+If we could output the search results to a web page, the encodings would be the problem of the web browser instead of the terminal. Because popular web browsers are intended to be used by people worldwide, they tend to support many text encoding formats, so there is may be better results by having a web browser interact with the Java program. We did not have the time to work on the web browser implementation though.
 
 \subsection{Kana Searching}
 
@@ -181,6 +190,12 @@ simplified the bibtex reference names to ``manning-ir-book'' and
 \section{Experiments}
 
 Did you perform any experiments?
+
+Word distance
+
+Comparison with Google Custom Search / Selective removal of text
+
+Searching with many/few kanji
 
 \section{Discussion}
 
