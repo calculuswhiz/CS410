@@ -11,7 +11,7 @@
 #include <sstream>  // concatenation
 #include <chrono>
 
-#define STARTPAGE 1
+#define STARTPAGE 2030
 
 using namespace std;
 using namespace Glib;
@@ -27,7 +27,7 @@ int main()
     setlocale(LC_ALL, "en_US.utf8");
     
     system ("mkdir index");
-    system ("rm linkFile.txt");
+    // system ("rm linkFile.txt");
     
     ustring baseCom = "curl 'http://piapro.jp/text/?categoryId=7&page=";
     ustring endCom = "' > 'temp.html'";
@@ -62,7 +62,7 @@ int main()
         else
             pageNo++;
         
-        this_thread::sleep_for (chrono::seconds(rand()%2+1));
+        this_thread::sleep_for (chrono::seconds(rand()%3));
     }
     
     system("rm temp.html");
@@ -160,7 +160,7 @@ void writeIndex(string str)
         
         // Create entry with title.
         writeEntry(tempString);
-        this_thread::sleep_for (chrono::seconds(rand()%2+1));
+        this_thread::sleep_for (chrono::seconds(rand()%3));
     }
     
     inFile.close();
