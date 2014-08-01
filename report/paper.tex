@@ -91,6 +91,62 @@ reference bibtex from \url{http://dl.acm.org/citation.cfm?id=984322}. I just
 simplified the bibtex reference names to ``manning-ir-book'' and
 ``zhai-smoothing''. Also, did you notice that URL and citations were clickable?
 
+\section{Crawling}
+
+\subsection{Piapro}
+
+Piapro was a fairly simple site to crawl due to the site's structure. The pages were all indexed by number, which could be accessed via changing the URL itself. The first page could be accessed by this URL: ``http://piapro.jp/text/?categoryId=7\&page=1''. Changing the URL page number past the last page returns a page that says ``見つかりませんでした。'' or ``Couldn't find it.'' Each of these pages lists ten songs, for a grand total of just over 47,000 songs. These links are stored under ``http://piapro.jp/t/'' on the site itself. Each song has a unique id of four characters, such as ``KlF-'', which goes after the previous url. These pages contain the title, author, and lyrics data we needed.
+
+As for implementation, at first C++ was used to call ``curl'' (via <cstdlib>'s ``system()'' function) first on the list pages to get all the song id's into a file. Next, the program went through this list of song id's and called curl again on each of the URL's, pulling the required data from the downloaded HTML file and writing them to files.
+
+In order to parse each of these HTML files, since the characters were in UTF-8, a setlocale was required. Also, the glibmm library provides wrappers for processing UTF-8 strings with the Glib::ustring data type, which can be used much in the same way as the std::string data type. It also provides a regex library for UTF-8 regular expressions. As the pages were downloaded, each line was checked for mathcing regular expressions. The following regular expresions were used:
+
+\begin{enumerate}
+ \item (?<=/t/).\{4\} : Used to match song links because all songs had a four character id under the /t/ directory.
+ \item (?<=「).*(?=」) : Used to match the title on the song page, since they were contained in the square open quote.
+ \item (?<=\"/).*?(?=\" class=\"i\_icon) : Used to match the user name, since it always followed the tag with i\_icon in it.
+ \item p id=\"\_txt\_main\" : Used to find the first line of lyrics, which had a different pattern in the html document.
+ \item (?<=>).*(?=<br) : Used to match the first line of lyrics
+ \item \^.+(?=<br) : Used to match all other lyrics, each of which had a line break tag after it.
+ \item \^.*(?=</p) : Used to match the last line of lyrics, which breaks out of the processing loop.
+\end{enumerate}
+
+Just for convenience, a progress checker that kept track of the number of songs was introduced. Furthermore, a time delay was used to prevent too many requests being sent at once. This was a small random integer of seconds.
+
+Due to the sheer number of songs to crawl, it became necessary to distribute the processing over a number of computers. Another issue was that EWS lacks the required libraries to compile this code or even run the executable. As a result, a simplification needed to be made. This time, the crawler simply took the html files, so that they could all be processed on a machine with the required library files. As a result, the following scheme was used:
+
+\begin{enumerate}
+ \item Pages 1-69,999: Zach's laptop
+ \item Pages 70,000-79,999: Zach's laptop via ssh to EWS
+ \item Pages 80,000-99,999: EWS machine no. 1
+ \item Pages 100,000-141,357: EWS machine no. 2
+\end{enumerate}
+
+Assuming an up-to-date system as of July 31, 2014, the following libraries were used in the first crawler:
+
+\begin{enumerate}
+ \item glibmm/ustring.h : ustring data type and functions
+ \item glibmm/regex.h : UTF-8 regex library
+ \item libxml++ : required to use the above two
+ \item iostream : streams
+ \item cstdio : popen function (used to count lines in the linkFile)
+ \item clocale : Set to UTF-8 mode
+ \item fstream : fileio
+ \item string : std::string for line-by-line reading
+ \item sstream : string concatenation
+ \item cstdlib : system() function, random() function
+ \item ctime : seeds random()
+ \item thread : sleep\_for() function
+ \item chrono : provides sleep\_for with number of seconds.
+\end{enumerate}
+
+Compilation commands (Makefile):
+
+\begin{enumerate}
+ \item Zach's laptop: g++ -g -std=c++0x main.cpp -o main `pkg-config libxml++-2.6 --cflags glib-2.0 --libs glib-2.0`
+ \item EWS machines: g++ -g -std=gnu++0x main.cpp -o main -D\_GLIBCXX\_USE\_NANOSLEEP
+\end{enumerate}
+
 \section{Experiments}
 
 Did you perform any experiments?
@@ -102,6 +158,22 @@ Are there any interesting questions or findings that should be discussed?
 \section{Conclusion}
 
 Here's why our project is great, and this is what we told you in the paper.
+
+\section{Future Plans}
+
+Due to time constraints, we were unfortunately unable to implement some of the items that we wanted to get to.
+
+Firstly, we think that the creation of a webpage would have been a nice addition to the project. To give a more concrete idea, certain websites have a built-in custom search bar and display search results in the browser. This would be a big advantage over the command line searcher because command line applications requires special knowledge of the command line and terminal applications can't handle Japanese characters if the font does not support the proper size of the characters (backspacing disaligns the cursor).
+
+Another big issue we ran into was when we tried to run the application on Windows' command line. Windows has its own method of text-encoding. The first major consequence is that results do not render properly. For some reason, only some of the lyrics' kanji would show up correctly, but not all of them. The second major consequence is that the search does not perform properly. Searching for any Japanese text yields no results at all, and putting the same English query into Linux and Windows yield different results.
+
+As for additional Japanese support, we could provide disambiguation of synonyms in the query. By synonym here, we mean that a word could have a kanji version(s), a kana version, and a romaji version, either in full- or half-width. For example, there are many ways to write the verb ``to take'' such as とる, 取る, and 撮る. These are all pronounced ``toru,'' but each has different nuances. We might not know which of these is in the song entry, so this would make searching easier on the user.
+
+Speaking of synonyms and the user, the user may lack adequate knowledge of the Japanese language to read the search results. It would also be convenient to give the user the option of getting results in Japanese or its Romanized form.
+
+We also wanted to crawl 東方同人ＣＤの歌詞 (Touhou Doujin CD no Kashi): \url{http://www31.atwiki.jp/touhoukashi/}. This is a giant database of songs that neither Anime Lyrics dot Com nor Piapro have. The Touhou fanbase has made many songs, so it would have given us a lot more data to work with. The creation of another crawler would have been a lot more work on its own, though.
+
+Lastly, the addition of Anime Lyrics dot Com's transliterated lyrics and translated lyrics would have made a good addition to our database. Currently, our data only consists of Japanese songs, which requires some degree of knowledge of the language to use. With this, English speakers could search a English translation of the song as well.
 
 \section*{Acknowledgments}
 
