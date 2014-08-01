@@ -2,14 +2,16 @@
 % http://www.acm.org/sigs/publications/proceedings-templates
 
 \documentclass{acm} % this finds the file "acm.bst"
-
+\usepackage[utf8]{inputenc}
+\usepackage{CJK,CJKspace,CJKpunct}
 \usepackage{cite,graphicx}
 
 % this lets you include clickable URLs with \url{}
 \usepackage[hidelinks]{hyperref}
 
+\pdfmapline{=unisong@Unicode@ <ipam.ttf}
 \begin{document}\sloppy % sloppy necessary here
-
+\begin{CJK}{UTF8}{zhsong}
 \title{JLyrics
     \titlenote{Submitted as the final project for CS 410 Summer 2014.}
 }
@@ -28,14 +30,14 @@
 \maketitle
 
 \begin{abstract}
-Making a search engine that finds the Japanese song that some lyrics came from.
+JLyrics is a search engine that finds the Japanese song that some lyrics came from.
 \end{abstract}
 
-\keywords{japanese, music, search, anime, vocaloid}
+\keywords{japanese; music; search; anime; vocaloid}
 
 \section{Introduction}
 
-Our project was chosen to solve certain problems we had noticed in terms of information retrieval. For starters, looking up what song had a particular set of lyrics would not necessarily bring you to the same website storing those lyrics as another website also storing song lyrics. The information we want is sparsely distributed and uploaded.
+Our project was chosen to solve certain problems we had noticed in terms of information retrieval. For starters, looking up what song had a particular set of lyrics would not necessarily bring you to the same website storing those lyrics as another website also storing song lyrics. The information we want is sparsely distributed and uploaded. For example, if you do not know if the song originated from an anime or from a video game, you would not know whether to search an anime songs website or a video game songs website for the song. We wanted to combine the information sets of both or multiple websites so that you could be sure to run into the song you want to find.
 
 \section{Motivation}
 
@@ -43,7 +45,43 @@ As for why someone would want to look up the song that some lyrics came from, th
 
 First of all, a song one may come across by chance may have little information attached to it. Perhaps the song came from a medley or from a YouTube re-upload without a detailed title or tags. In that case, the listener has no background to go on to find the song aside from the lyrics they have heard. Moreover, human memory and recognition is finite. If we were to passively hear a song we like, we could only catch portions of the song's lyrics. Ideally, just those lyrics alone should be enough to help someone find that song.
 
-Secondly, finding information on the song itself can assist the listener in learning foreign languages. Repetition is the best methods for learning. Listening to enjoyable music and recognizing new words each time the song is played is a fun way to strengthen one's language capabilities through repetition.
+Secondly, finding information on the song itself can assist the listener in learning foreign languages. Repetition is the best methods for learning. Listening to enjoyable music and recognizing new words each time the song is played is a fun way to strengthen one's language capabilities through repetition. Many music players such as foobar2000 and Rocket Player will display the lyrics of a song that is being played so long as those lyrics have been embedded into the music file as a tag. This feature can be used in tandem with the learner's interest in following along with the song to promote learning the language. If one is clever, they could put the same lyrics into the karaoke variant of the song and practice singing to improve their reading and speaking abilities. Regardless of the reason, they user would need to find the full lyrics from the song. We want to help with this cause.
+
+TODO: Picture of Rocket Player or foobar2000
+
+Finally, if someone finds a song they like, there is a good chance that the songs made by that song's producer would also be likable. 
+
+\section{Goals}
+
+We want to build a search engine that connects the world of Japanese songs to non-Japanese speakers. To that extent, we had a list of goals to work on to drive the development of the project.
+
+Our target audience are people who are interested in songs sung in anime, in doujin music, or by Vocaloid artists. These interests tend to be intermixed because of websites that host all of these things at once such as Niconico Douga. Because the non-Japanese speaking fans of these materials are numerous, this search engine could be useful for them. The intermingling of sources creates a rich and diverse community, but the people who are introduced to the Japanese song scene would not necessarily understand the difference between a Vocaloid song and a Touhou doujin song for instance. Using our search engine should provide no boundaries to that inadequacy.
+
+%Aside from that, the language barrier that a non-Japanese speaker has to deal with when looking up Japanese is having to figure out if their search results bore fruit or not. The first result may be a perfect match, but if the searcher can't read Japanese in the first place, they would have no idea just how accurate their search was. It would be nice if we could present to the user their search results in a format they could understand and work with such as translated text or transliterated text (written in romaji).
+
+In order to merge these data points of interest into one search engine, we need to scour the Internet to get diverse sources of data. Although we want a lot of data, we also want to minimize overlap in the data we scour. Crawling the Internet is a costly operation in terms of time because we must wait between requests to get web pages. We decided to target three sites in particular in order to balance the amount of songs we could fetch and the estimated amount of overlap we may encounter.
+
+\begin{itemize}
+\item ピアプロ (Piapro): \url{http://piapro.jp/}
+\item Anime Lyrics dot Com: \url{http://www.animelyrics.com/}
+\item 東方同人ＣＤの歌詞 (Touhou Doujin CD no Kashi): \url{http://www31.atwiki.jp/touhoukashi/}
+\end{itemize}
+
+Piapro is a famous site for Vocaloid producers. They upload their songs, lyrics, karaoke versions of their songs, and other things to Piapro. It is a valuable site because a huge portion of songs uploaded to Niconico Douga in video format are also linked to Piapro. This typically is done to show fans to the karaoke versions of songs so that the fans could upload videos of themselves singing to the song. In other words, Piapro covers a huge fanbase for Vocaloid and 歌ってみた (utattemita / Tried to sing) fans.
+
+Anime Lyrics dot Com would be our most valuable source of song data because, as the name implies, it is a massive database of anime songs and their lyrics. This site stores lyrics for the purpose of non-Japanese speakers, so it stores them transliterated first and foremost. The song may or may not have kanji and/or English lyrics available as well. Due to the uncertainty of which songs have lyrics or not and what formats are available, Anime Lyrics dot Com appears to be the site that will take the most development time to crawl.
+
+Touhou Doujin CD no Kashi is a Wikipedia site dedicated to storing the lyrics of Touhou doujin songs. The Touhou fanbase has made a huge array of music and the fans are also numerous these days. On the same token, a listener may not recognize a song as a remix from a Touhou game, so this search engine would not be troubled by the discrepancy. Because Touhou Doujin CD no Kashi is a Wikipedia site, it would take a considerable amount of development time to scour and parse.
+
+\section{Results}
+
+\subsection{Platform Dependent Results}
+
+TODO: Add pictures of command prompts
+
+\subsection{Kana Searching}
+
+\subsection{Google Custom Search}
 
 \section{Related Work}
 
@@ -85,4 +123,5 @@ if you want.
 \bibliographystyle{plain}
 \bibliography{bib} % "bib" is the name of the .bib file
 
+\end{CJK}
 \end{document}
