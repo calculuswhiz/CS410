@@ -113,7 +113,7 @@ In order to parse each of these HTML files, since the characters were in UTF-8, 
 
 Just for convenience, a progress checker that kept track of the number of songs was introduced. Furthermore, a time delay was used to prevent too many requests being sent at once. This was a small random integer of seconds.
 
-Due to the sheer number of songs to crawl, it became necessary to distribute the processing over a number of computers. Another issue was that EWS lacks the required libraries to compile this code or even run the executable. As a result, a simplification needed to be made. This time, the crawler simply took the html files, so that they could all be processed on a machine with the required library files. As a result, the following scheme was used:
+Due to the sheer number of songs to crawl, it became necessary to distribute the processing over a number of computers. Another issue was that EWS lacks the required libraries to compile this code or even run the executable. As a result, a simplification needed to be made. This time, the crawler simply took the html files, so that they could all be processed on a machine with the required library files. In short, the original crawler was split into two parts. As a result, the following scheme was used:
 
 \begin{enumerate}
  \item Pages 1-69,999: Zach's laptop
@@ -122,7 +122,7 @@ Due to the sheer number of songs to crawl, it became necessary to distribute the
  \item Pages 100,000-141,357: EWS machine no. 2
 \end{enumerate}
 
-Assuming an up-to-date system as of July 31, 2014, the following libraries were used in the first crawler:
+Assuming an up-to-date system as of July 31, 2014, the following libraries were used in the first crawler: (Note: the split up crawler uses a combination of these.)
 
 \begin{enumerate}
  \item glibmm/ustring.h : ustring data type and functions
@@ -144,7 +144,8 @@ Compilation commands (Makefile):
 
 \begin{enumerate}
  \item Zach's laptop: g++ -g -std=c++0x main.cpp -o main `pkg-config libxml++-2.6 --cflags glib-2.0 --libs glib-2.0`
- \item EWS machines: g++ -g -std=gnu++0x main.cpp -o main -D\_GLIBCXX\_USE\_NANOSLEEP
+ \item EWS machines (crawl): g++ -g -std=gnu++0x main.cpp -o main -D\_GLIBCXX\_USE\_NANOSLEEP
+ \item Zach's laptop (after EWS crawl): g++ -g -std=c++0x postParse.cpp -o postParse `pkg-config libxml++-2.6 --cflags glib-2.0 --libs glib-2.0`
 \end{enumerate}
 
 \section{Experiments}
