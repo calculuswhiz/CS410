@@ -3,6 +3,7 @@
 
 \documentclass{acm} % this finds the file "acm.bst"
 \usepackage{easyfig}
+\usepackage{listings}
 \usepackage[utf8]{inputenc}
 \usepackage{CJK,CJKspace,CJKpunct}
 \usepackage{cite,graphicx}
@@ -11,7 +12,7 @@
 % this lets you include clickable URLs with \url{}
 \usepackage[hidelinks]{hyperref}
 
-\easyfigdefault{placement={!htb}, max width=20pc, max height=\textheight, keepaspectratio}
+\easyfigdefault{placement={!htb}, max width=19pc, max height=.5\textheight, keepaspectratio}
 
 \pdfmapline{=unisong@Unicode@ <ipam.ttf}
 \begin{document}\sloppy % sloppy necessary here
@@ -51,7 +52,7 @@ First of all, a song one may come across by chance may have little information a
 
 Secondly, finding information on the song itself can assist the listener in learning foreign languages. Repetition is the best methods for learning. Listening to enjoyable music and recognizing new words each time the song is played is a fun way to strengthen one's language capabilities through repetition. Many music players such as foobar2000 and Rocket Player will display the lyrics of a song that is being played so long as those lyrics have been embedded into the music file as a tag. An example screenshot of Rocket Player showing a song's lyrics is in Figure~\ref{fig:res/rocket-player.png} This feature can be used in tandem with the learner's interest in following along with the song to promote learning the language. If one is clever, they could put the same lyrics into the karaoke variant of the song and practice singing to improve their reading and speaking abilities. Regardless of the reason, they user would need to find the full lyrics from the song. We want to help with this cause.
 
-\Figure[caption="Rocket Player Displaying Song Lyrics]{res/rocket-player.png}
+\Figure[caption={Rocket Player Displaying Song Lyrics}, max height=.3\textheight]{res/rocket-player.png}
 
 Finally, if someone finds a song they like, there is a good chance that the songs made by that song's producer would also be likable. 
 
@@ -77,32 +78,56 @@ Anime Lyrics dot Com would be our most valuable source of song data because, as 
 
 Touhou Doujin CD no Kashi is a Wikipedia site dedicated to storing the lyrics of Touhou doujin songs. The Touhou fanbase has made a huge array of music and the fans are also numerous these days. On the same token, a listener may not recognize a song as a remix from a Touhou game, so this search engine would not be troubled by the discrepancy. Because Touhou Doujin CD no Kashi is a Wikipedia site, it would take a considerable amount of development time to scour and parse.
 
-
 \section{Crawling}
 
 Before we could make a search engine, we would need to have material to search through. The Internet already has a great amount of data on it, but we need to extract that information. In order to do that, we used programming languages that were able to retrieve web pages so that we could save those pages on our hard drives. Later, we would program some way to parse those pages and get the data we wanted. The final product would be a standardized format for documents (a.k.a. docs) that the indexer would interpret.
 
 \subsection{Anime Lyrics dot Com}
 
-Anime Lyrics dot Com is a multi-layered site, so it took a considerable amount of time determining how to best crawl it. The home page lists all of the genres of music stored on Anime Lyrics dot Com. Despite what their name may imply, they also store lyrics for dance, dance CD, doujin, video game, and J-Pop music. Each genre has an index.htm file listing all of the albums belonging to that category. Each album name points to an index.htm in a deeper directory. The album page at this area lists all of the songs in that album. The songs are in the same directory as the album, but they do not have the name index.htm, so they stand out in the address bar. The name index.htm is a default name that the web browser will try to access, so the URL usually omits this. By consequence, we only see a ".htm" URL when looking at a song.
+\Figure[caption={Site Logo}]{res/logo_animelyrics.png}
 
-Graphically, the general structure of Anime Lyrics dot Com can be seen in Figure~\ref{fig:res/animelyrics_format.png}. All folders shown have an index.htm in them, but the album folders all hold song web pages as well.
+To begin with, deciding how best to crawl Anime Lyrics dot Com took a considerable. The site's multi-layered structure will be explained shortly. The home page lists all of the genres of music stored on Anime Lyrics dot Com. Despite what their name may imply, they also store lyrics for dance, dance CD, doujin, video game, and J-Pop music. Each genre has an index.htm file listing all of the albums belonging to that category. Each album name points to an index.htm in a deeper directory. The album page at this area lists all of the songs in that album. The songs are in the same directory as the album, but they do not have the name index.htm, so they stand out in the address bar. The name index.htm is a default name that the web browser will try to access, so the URL usually omits this. By consequence, we only see a ".htm" URL when looking at a song. This was how Anime Lyrics dot Com was designed as seen from a surfer on their web site.
+
+In summary, the general structure of Anime Lyrics dot Com can be graphically seen in Figure~\ref{fig:res/animelyrics_format.png}. All folders shown have an index.htm in them, but the album folders all hold song web pages as well.
 
 \Figure[caption={Anime Lyrics dot Com Structure}, max width=5pc]{res/animelyrics_format.png}
 
-When the pages are parsed to generate the indexable docs, the folder structure is retained, but there will be no more index.htm pages left over.
+The crawler would get all index.htm pages and also the pages not named index.htm which were actual songs. When the pages are parsed to generate the indexable docs, the folder structure is retained, but there will be no more index.htm pages left over. The only files left over would be plain text documents parsed from the songs which would later be indexed by the search engine.
 
-All Anime Lyrics dot Com crawling and parsing was done in Python 2 using the Beautiful Soup (2) library and a few regular expressions. All crawling was done with a one-to-two second randomized delay so as to not hammer their server. Two scripts were ran at once simultaneously on the same computer to get more songs at once during the final phase of the crawling.
+As for implementation, all Anime Lyrics dot Com crawling and parsing was done in Python 2 using the Beautiful Soup (2) library and a few regular expressions. All crawling was done with a one-to-two second randomized delay so as to not hammer their server. Two scripts were ran at once simultaneously on the same computer to get more songs at once during the final phase of the crawling.
 
-The genre pages were grabbed by hand and the full list of albums were retrieved from that. The album pages were stored locally, but it was quickly discovered that even the plain text produced by Anime Lyrics dot Com created an extremely large amount of data that was stored. About 60 MB of album pages were downloaded. Most of this was boiler plate code such as the navigation bar, embedded scripts, and formatting to make the web page display nicely.
+At the topmost level of the site, the genre pages were grabbed by hand and the full list of albums were retrieved from that. The album pages were stored locally, but it was quickly discovered that even the plain text produced by Anime Lyrics dot Com created an extremely large amount of data that was stored. About 60 MB of album pages were downloaded. Most of this was boiler plate code such as the navigation bar, embedded scripts, and formatting to make the web page display nicely. With that, we had delved into the two highest layers of the site: the home page's genres and the genre's albums.
 
-Before beginning the crawling of the song pages, a method of getting rid of the unnecessary data was worked on. Without making too many assumptions about the format of the nearly 40,000 song pages Anime Lyrics dot Com had available, it was decided that the chunk of code above and below the song lists of each album page would be cropped out before being saved to the hard drive. As an extra precaution, Beautiful Soup was used to re-create valid HTML before saving the crawled album page. This was to ensure that later parsing of the song page would hopefully be consistent.
+Before beginning the crawling of the song pages, a method of getting rid of the unnecessary data was worked on. Without making too many assumptions about the format of the nearly 40,000 song pages Anime Lyrics dot Com had available, it was decided that the chunk of code above and below the song lists of each album page would be cropped out before being saved to the hard drive. As an extra precaution, Beautiful Soup was used to re-create valid HTML before saving the crawled album page. This was to ensure that later parsing of the song page would hopefully be consistent. This was how disk space was saved during the crawling process.
 
-During the development process, a total of three different systems had seen work with the codebase being worked on. Python 2 with Beautiful Soup 2 had ran the script on Windows 7, Windows 8, and Xubuntu (Linux). In doing so, non-cross-platform bugs surfaced in the code. Of particular interest was that the crawler would outright crash on Windows. The problem was that Beautiful Soup was capable of using a slew of different HTML parsers and it would select a default for you. The default was usually a bad one that shipped with Python, so on the Windows operating systems, the lxml library was installed as well. With all three systems using lxml for parsing the web pages, the code became consistent in behavior and cross-platform.
+During the development process, bugs were discovered when attempting to run the code on different systems. A total of four different systems had seen work with the code base being worked on. Python 2 with Beautiful Soup 2 had ran the script on Windows 7, Windows 8, Xubuntu (Linux), and Scientific Linux (Linux). In doing so, non-cross-platform bugs surfaced in the code. Of particular interest was that the crawler would outright crash on Windows. The problem was that Beautiful Soup was capable of using a slew of different HTML parsers and it would select a default for you. The default was usually a bad one that shipped with Python, so on the Windows operating systems, the lxml library was installed as well. With all three systems using lxml for parsing the web pages, the code became consistent in behavior and cross-platform. The Scientific Linux system happened to be the UIUC EWS machines. The University did not give users root privileges, so it was too much of a hassle to install lxml there. The code base was at least managed to get running on three of the four systems.
 
-12,654 songs were scoured.
+With all album pages crawled, the song links needed to be extracted. This was tricky because Anime Lyrics dot Com does not store its lyrics with Japanese text in the same page as where it stores the translated and/or transliterated text. For example, one of the songs from K-On! named "NO, Thank You!" was popular enough to have its original Japanese, a translation, and a transliteration uploaded. However, the transliteration and translation are found at this URL:
+
+\url{http://www.animelyrics.com/anime/kons2/nothankyou.htm}
+
+Whereas the Japanese text could be found at this URL:
+
+\url{http://www.animelyrics.com/anime/kons2/nothankyou.jis}
+
+All songs had a transliteration by default, but a check would be needed to done to see if Japanese text was available. The method devised was to look at the album page for a particular image next to the song name. This image was a picture of the Japanese word 漢字 (kanji meaning Chinese characters). Its tool tip text says "Japanese Text available" implying that a separate Japanese lyrics page was on the server. An example of this is shown in Figure~\ref{fig:res/kon_album.png}. This is an album list from K-On! as shown on Anime Lyrics dot Com. The song "Our MAGIC" does not have Japanese text, but the song "NO, Thank You!" does.
+
+\Figure[caption={K-On! Album List}]{res/kon_album.png}
+
+Beautiful Soup made it simple to extract all of the links needed. It was a one-line statement in Python to see if a Japanese page was available. As opposed to traversing the album's table storing the songs, each table entry storing a song was checked for the Japanese signifier using the following code:
+
+\begin{lstlisting}[language=Python]
+has_kanji = len(soup_song.parent('img',
+	alt='Japanese Kanji available'))>0
+\end{lstlisting}
+
+With the ability to check for Japanese pages, Beautiful Soup was furthermore used to extract all anchor tags (HTML entities defined by <a></a>). Since song names did not have the address of index.htm, those links were removed. After removing a small set of unusual edge cases of anchors not linking to songs (such as anchors intended to work with javascript), all song links had been retrieved. The song links were put into a massive text document that simply separated each link by new lines. This resultant file was 1.35 MB large. With all song links extracted, it was time to get the songs.
+
+After the crawler had finished retrieving all of the song pages, a total of 42,682 songs were stored locally. Even after trimming the junk content from these songs, 600 MB of data had been stored locally. All of this data would need to be parsed into documents. Due to time constraints, it was decided to only check the 12,654 Japanese lyrics crawled because the docs produced from them would definitely work correctly with the Piapro docs being crawled by the other team mate.
 
 \subsection{Piapro}
+
+\Figure[caption={Site Logo}]{res/logo_piapro.png}
 
 Piapro was a fairly simple site to crawl due to the site's structure. The pages were all indexed by number, which could be accessed via changing the URL itself. The first page could be accessed at \url{http://piapro.jp/text/?categoryId=7\&page=1}. Changing the URL page number past the last page returns a page that says ``見つかりませんでした。'' or ``Couldn't find it.'' Each of these 4710 pages lists thirty songs, for a grand total of just over 141,000 songs. These links are stored under \url{http://piapro.jp/t/} on the site itself. Each song has a unique id of four characters, such as ``KlF-'', which goes after the previous url. These pages contain the title, author, and lyrics data we needed.
 
@@ -193,11 +218,11 @@ The pages we took from Piapro were stored in UTF-8, but we had a good number of 
 
 Despite all efforts to keep our encodings straight, nothing could get Windows' command prompt, cmd, to behave as we would have wanted it to. As shown in Figure~\ref{fig:res/cmd_search_fail.png}, trying to look for the words 聞こえる and 愛 fail to produce results. We wonder if it is because the words we pass to the Java program through cmd are getting re-encoded and thereby messing up our results.
 
-\Figure[caption="cmd.exe on Windows Failure"]{res/cmd_search_fail.png}
+\Figure[caption={cmd.exe on Windows Failure}]{res/cmd_search_fail.png}
 
 While testing our project, we had access to Linux computers through SSH thanks to the University of Illinois at Urbana Champaign's Engineering WorkStations (UIUC's EWS). By using the Windows program called PuTTY to interact with the Java-based searching program, we got to see perfect results as shown in Figure~\ref{fig:res/putty_search_success.png}. It raises the question of where the encoding transformations could be going wrong since PuTTY appears to be a terminal application just like cmd.
 
-\Figure[caption="PuTTY on Windows Success"]{res/putty_search_success.png}
+\Figure[caption={PuTTY on Windows Success}]{res/putty_search_success.png}
 
 If we could output the search results to a web page, the encodings would be the problem of the web browser instead of the terminal. Because popular web browsers are intended to be used by people worldwide, they tend to support many text encoding formats, so there is may be better results by having a web browser interact with the Java program. We did not have the time to work on the web browser implementation though.
 
