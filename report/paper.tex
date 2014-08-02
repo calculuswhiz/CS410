@@ -133,9 +133,9 @@ Piapro was a fairly simple site to crawl due to the site's structure. The pages 
 
 As for implementation, at first C++ was used to call ``curl'' (via <cstdlib>'s ``system()'' function) first on the list pages to get all the song id's into a file. Next, the program went through this list of song id's and called curl again on each of the URL's, pulling the required data from the downloaded HTML file and writing them to files.
 
-In order to parse each of these HTML files, since the characters were in UTF-8, a setlocale was required. Also, the glibmm library provides wrappers for processing UTF-8 strings with the Glib::ustring data type, which can be used much in the same way as the std::string data type. It also provides a regex library for UTF-8 regular expressions. As the pages were downloaded, each line was checked for mathcing regular expressions. The following regular expresions were used:
+In order to parse each of these HTML files, since the characters were in UTF-8, a setlocale was required. Also, the glibmm library provides wrappers for processing UTF-8 strings with the Glib::ustring data type, which can be used much in the same way as the std::string data type. It also provides a regex library for UTF-8 regular expressions. As the pages were downloaded, each line was checked for matching regular expressions. The following regular expressions were used:
 
-\begin{enumerate}
+\begin{itemize}
  \item (?<=/t/).\{4\} : Used to match song links because all songs had a four character id under the /t/ directory.
  \item (?<=「).*(?=」) : Used to match the title on the song page, since they were contained in the square open quote.
  \item (?<=$''$/).*?(?=$''$ class=$''$i\_icon) : Used to match the user name, since it always followed the tag with i\_icon in it.
@@ -143,7 +143,7 @@ In order to parse each of these HTML files, since the characters were in UTF-8, 
  \item (?<=>).*(?=<br) : Used to match the first line of lyrics
  \item \^{}.+(?=<br) : Used to match all other lyrics, each of which had a line break tag after it.
  \item \^{}.*(?=</p) : Used to match the last line of lyrics, which breaks out of the processing loop.
-\end{enumerate}
+\end{itemize}
 
 Just for convenience, a progress checker that kept track of the number of songs was introduced. Furthermore, a time delay was used to prevent too many requests being sent at once. This was a small random integer of seconds.
 
@@ -159,7 +159,7 @@ Due to the sheer number of songs to crawl, it became necessary to distribute the
 
 Assuming an up-to-date system as of July 31, 2014, the following libraries were used in the first crawler: (Note: the split up crawler uses a combination of these.)
 
-\begin{enumerate}
+\begin{itemize}
  \item glibmm/ustring.h : ustring data type and functions
  \item glibmm/regex.h : UTF-8 regex library
  \item libxml++ : required to use the above two
@@ -173,23 +173,43 @@ Assuming an up-to-date system as of July 31, 2014, the following libraries were 
  \item ctime : seeds random()
  \item thread : sleep\_for() function
  \item chrono : provides sleep\_for with number of seconds.
-\end{enumerate}
+\end{itemize}
 
 Compilation commands (Makefile):
 
-\begin{enumerate}
+\begin{itemize}
  \item Zach's laptop: g++ -g -std=c++0x main.cpp -o main `pkg-config libxml++-2.6 --cflags glib-2.0 --libs glib-2.0`
  \item EWS machines (crawl): g++ -g -std=gnu++0x main.cpp -o main -D\_GLIBCXX\_USE\_NANOSLEEP
  \item Zach's laptop (after EWS crawl): g++ -g -std=c++0x postParse.cpp -o postParse `pkg-config libxml++-2.6 --cflags glib-2.0 --libs glib-2.0`
-\end{enumerate}
+\end{itemize}
 
 The actual time spent crawling across the four machines was around 3 days. Otherwise, on a single machine, a reasonable estimate would have been around 5-6 days. Had we performed this estimation sooner, we could have distributed the download and saved another day or so.
+
+\section{Doc Creation}
+
+The docs are the plain text files that our indexer would parse into something that can be searched. For that to happen, we would need to define a consistent format that all of our songs could be described in. We would need to be able to produce this format regardless of which web site the data came from. Our format was chosen to be the following.
+
+\begin{itemize}
+\item URL of the song on line 1.
+\item Song title on line 2.
+\item Artist/Producer of the song on line 3.
+\item Language of the lyrics on line 4.
+\item Song lyrics on line 5 and on.
+\end{itemize}
+
+The URL would give searchers a traceback to the source of where we got the song lyrics from. That is how the user can learn more about the song. The song's title and artist are a shortcut in case the user only cares about looking those up such as for tagging music or Googling outside of our search engine and the source sites. The language would differentiate between Japanese, transliterated, and translated text. It may play a role in the searcher if we had supported more than just Japanese text, but for now it is simply an extra byte of information that our search engine ignores. Finally, the lyrics are both what the search engine compares the query with and what the user uses to verify that a song s/he was looking for was the right one.
+
+\subsection{Anime Lyrics dot Com}
+
+\subsection{Piapro}
+
+Turning the crawled pages from Piapro into indexable docs was a simple process. The artist was simple to retrieve, the lyrics were not particularly mangled with formatting, and the language byte we would store would unconditionally represent "Japanese".
 
 \section{Results}
 
 Due to time constraints imposed by other classes that both team members had to deal with, only the bare minimum working product with rudimentary testing in the end. The search engine works from command line because there was not enough time left over to try to convert our project into a website. Out of all of the websites we wanted to crawl, only Piapro and the Japanese text uploaded to Anime Lyrics dot Com were saved. So altogether, we crawled around 13,000+40,000+141,000+5000 = 199,000 pages.
 
-Unfortunately, because the pre-processed HTML files are considerably larger than the post-processed ones, the EWS machines ran out of space. Due to this unforseen occurrence, we didn't think to save space by clearing out unnecessary files, and only around 1GB's worth of HTML files could be downloaded. In reality, the number of documents indexed only ended up being 127,223 instead of an estimated 154,000.
+Unfortunately, because the pre-processed HTML files are considerably larger than the post-processed ones, the EWS machines ran out of space. Due to this unforeseen occurrence, we didn't think to save space by clearing out unnecessary files, and only around 1GB's worth of HTML files could be downloaded. In reality, the number of documents indexed only ended up being 127,223 instead of an estimated 154,000.
 
 \subsection{Platform Dependent Results}
 
@@ -228,9 +248,31 @@ While testing our project, we had access to Linux computers through SSH thanks t
 
 If we could output the search results to a web page, the encodings would be the problem of the web browser instead of the terminal. Because popular web browsers are intended to be used by people worldwide, they tend to support many text encoding formats, so there is may be better results by having a web browser interact with the Java program. We did not have the time to work on the web browser implementation though.
 
-\subsection{Kana Searching}
+\section{Experiments}
 
-\subsection{Google Custom Search}
+There were a few things we tried out to see how effective our search engine was. Even though the engine works just fine and has a considerable amount of data in its back end, it would still be a bad search engine if it behaved improperly.
+
+%The first thing we checked was if distance between words mattered at all. For example, if we were to search for 愛が欲しいと叫んだ声なら ("if you were to cry out that you wanted love"), then the first hit of the search engine should ideally be the song that this came from both because the words are close together and the unique words all come from the same song.
+
+\subsection{Against Google Custom Search}
+
+A milestone we wanted to achieve with this project was to beat Google Custom Search using our vertical search engine. Anime Lyrics dot Com has a built-in search engine on their web page, but it is simply a Google Custom Search. It would be identical to searching on Google for "site:animelyrics.com" followed by the song lyrics. Our test was performed by choosing a specific song and some lyrics from it. Afterwards, we would change one of the words to see if the search engine still picks up the original song.
+
+Our chosen song was シリウス (Sirius) from the KILL la KILL sound track. The lyrics would be the very first line: 誰かが勝手に決めた (someone decided on their own that...). The bastardized line would be this: 誰かが勝手に急に (someone had immediately, without permission did...).
+
+Google Custom search performs perfectly when looking up the the correct line. They rank it number one out of three. This is shown in Figure~\ref{fig:res/google_custom_correct.png}. Our search engine however ranks Sirius at rank 10 out of 25.
+
+\Figure[caption={Google Search for Sirius: Success}]{res/google_custom_correct.png}
+
+When using the invalid text, Google Custom search fails to find the test song at all. The results are shown in Figure~\ref{fig:res/google_custom_wrong.png}. Our search engine also fails to find the song.
+
+\Figure[caption={Google Search for Sirius: Failure}]{res/google_custom_wrong.png}
+
+The lesson learned here is that perhaps we were expecting too much out of search engines. Our search engine could not compete with Google's, but neither one functioned well on improperly remembered lyrics. The other lesson is that we probably can't compete with the professionals with a naive outlook. We may have lost the match, but it gives us a nice high bar to beat should either of us attempt to improve the search engine.
+
+%\subsection{Kanji Count Variations}
+
+%While testing our search engine, we recognized a pattern. It seemed that the search engine worked best when there were more kanji in the search query. We decided to test this hypothesis.
 
 \section{Related Work}
 
@@ -239,16 +281,6 @@ this~\cite{manning-ir-book} and this~\cite{zhai-smoothing}. I got the second
 reference bibtex from \url{http://dl.acm.org/citation.cfm?id=984322}. I just
 simplified the bibtex reference names to ``manning-ir-book'' and
 ``zhai-smoothing''. Also, did you notice that URL and citations were clickable?
-
-\section{Experiments}
-
-Did you perform any experiments?
-
-Word distance
-
-Comparison with Google Custom Search / Selective removal of text
-
-Searching with many/few kanji
 
 \section{Discussion}
 
@@ -276,20 +308,20 @@ Lastly, the addition of Anime Lyrics dot Com's transliterated lyrics and transla
 
 \section*{Acknowledgments}
 
-The authors would like to thank people for things. You can delete this section
-if you want.
+Sean Massung: Professor of CS 410: Information Retrieval Systems. Also the developer of Goose, the combination indexer and searcher built on top of Lucene. JLyrics is essentially Goose with minor edits to incorporate support for Japanese text.
 
 \appendix
 
 \section{Division of Labor}
 
-\begin{enumerate}
+\begin{itemize}
 \item Crawling and Parsing of Anime Lyrics dot Com: Larry
 \item Crawling and Parsing of Piapro: Zach
 \item Initial Outline: Larry, Zach
 \item Midterm Report: Larry, Zach
 \item Lucene Setup: Larry
-\end{enumerate}
+\item Final Report: Larry, Zach
+\end{itemize}
 
 \bibliographystyle{plain}
 \bibliography{bib} % "bib" is the name of the .bib file
