@@ -6,11 +6,12 @@
 \usepackage[utf8]{inputenc}
 \usepackage{CJK,CJKspace,CJKpunct}
 \usepackage{cite,graphicx}
+% \usepackage[T1]{fontenc}
 
 % this lets you include clickable URLs with \url{}
 \usepackage[hidelinks]{hyperref}
 
-\easyfigdefault{placement={!htb}, max width=20pc, max height=.5\textheight, keepaspectratio}
+\easyfigdefault{placement={!htb}, max width=20pc, max height=\textheight, keepaspectratio}
 
 \pdfmapline{=unisong@Unicode@ <ipam.ttf}
 \begin{document}\sloppy % sloppy necessary here
@@ -48,11 +49,11 @@ As for why someone would want to look up the song that some lyrics came from, th
 
 First of all, a song one may come across by chance may have little information attached to it. Perhaps the song came from a medley or from a YouTube re-upload without a detailed title or tags. In that case, the listener has no background to go on to find the song aside from the lyrics they have heard. Moreover, human memory and recognition is finite. If we were to passively hear a song we like, we could only catch portions of the song's lyrics. Ideally, just those lyrics alone should be enough to help someone find that song.
 
-Secondly, finding information on the song itself can assist the listener in learning foreign languages. Repetition is the best methods for learning. Listening to enjoyable music and recognizing new words each time the song is played is a fun way to strengthen one's language capabilities through repetition. Many music players such as foobar2000 and Rocket Player will display the lyrics of a song that is being played so long as those lyrics have been embedded into the music file as a tag. An example screenshot of Rocket Player showing a song's lyrics is in Figure~\ref{fig:res/rocket-player.png}. This feature can be used in tandem with the learner's interest in following along with the song to promote learning the language. If one is clever, they could put the same lyrics into the karaoke variant of the song and practice singing to improve their reading and speaking abilities. Regardless of the reason, they user would need to find the full lyrics from the song. We want to help with this cause.
+Secondly, finding information on the song itself can assist the listener in learning foreign languages. Repetition is the best methods for learning. Listening to enjoyable music and recognizing new words each time the song is played is a fun way to strengthen one's language capabilities through repetition. Many music players such as foobar2000 and Rocket Player will display the lyrics of a song that is being played so long as those lyrics have been embedded into the music file as a tag. An example screenshot of Rocket Player showing a song's lyrics is in Figure~\ref{fig:res/rocket-player.png} This feature can be used in tandem with the learner's interest in following along with the song to promote learning the language. If one is clever, they could put the same lyrics into the karaoke variant of the song and practice singing to improve their reading and speaking abilities. Regardless of the reason, they user would need to find the full lyrics from the song. We want to help with this cause.
 
-\Figure[caption={Rocket Player Displaying Song Lyrics}, max height=.3\textheight]{res/rocket-player.png}
+\Figure[caption="Rocket Player Displaying Song Lyrics]{res/rocket-player.png}
 
-Finally, if someone finds a song they like, there is a good chance that the song's producer has made other likable songs. Our search engine would be one more avenue for users to find new material to enjoy themselves with.
+Finally, if someone finds a song they like, there is a good chance that the songs made by that song's producer would also be likable. 
 
 \section{Goals}
 
@@ -75,6 +76,7 @@ Piapro is a famous site for Vocaloid producers. They upload their songs, lyrics,
 Anime Lyrics dot Com would be our most valuable source of song data because, as the name implies, it is a massive database of anime songs and their lyrics. This site stores lyrics for the purpose of non-Japanese speakers, so it stores them transliterated first and foremost. The song may or may not have kanji and/or English lyrics available as well. Due to the uncertainty of which songs have lyrics or not and what formats are available, Anime Lyrics dot Com appears to be the site that will take the most development time to crawl.
 
 Touhou Doujin CD no Kashi is a Wikipedia site dedicated to storing the lyrics of Touhou doujin songs. The Touhou fanbase has made a huge array of music and the fans are also numerous these days. On the same token, a listener may not recognize a song as a remix from a Touhou game, so this search engine would not be troubled by the discrepancy. Because Touhou Doujin CD no Kashi is a Wikipedia site, it would take a considerable amount of development time to scour and parse.
+
 
 \section{Crawling}
 
@@ -102,7 +104,7 @@ During the development process, a total of three different systems had seen work
 
 \subsection{Piapro}
 
-Piapro was a fairly simple site to crawl due to the site's structure. The pages were all indexed by number, which could be accessed via changing the URL itself. The first page could be accessed at \url{http://piapro.jp/text/?categoryId=7\&page=1}. Changing the URL page number past the last page returns a page that says ``見つかりませんでした。'' or ``Couldn't find it.'' Each of these pages lists ten songs, for a grand total of just over 47,000 songs. These links are stored under \url{http://piapro.jp/t/} on the site itself. Each song has a unique id of four characters, such as ``KlF-'', which goes after the previous url. These pages contain the title, author, and lyrics data we needed.
+Piapro was a fairly simple site to crawl due to the site's structure. The pages were all indexed by number, which could be accessed via changing the URL itself. The first page could be accessed at \url{http://piapro.jp/text/?categoryId=7\&page=1}. Changing the URL page number past the last page returns a page that says ``見つかりませんでした。'' or ``Couldn't find it.'' Each of these 4710 pages lists thirty songs, for a grand total of just over 141,000 songs. These links are stored under \url{http://piapro.jp/t/} on the site itself. Each song has a unique id of four characters, such as ``KlF-'', which goes after the previous url. These pages contain the title, author, and lyrics data we needed.
 
 As for implementation, at first C++ was used to call ``curl'' (via <cstdlib>'s ``system()'' function) first on the list pages to get all the song id's into a file. Next, the program went through this list of song id's and called curl again on each of the URL's, pulling the required data from the downloaded HTML file and writing them to files.
 
@@ -111,23 +113,24 @@ In order to parse each of these HTML files, since the characters were in UTF-8, 
 \begin{enumerate}
  \item (?<=/t/).\{4\} : Used to match song links because all songs had a four character id under the /t/ directory.
  \item (?<=「).*(?=」) : Used to match the title on the song page, since they were contained in the square open quote.
- \item (?<=\"/).*?(?=\" class=\"i\_icon) : Used to match the user name, since it always followed the tag with i\_icon in it.
- \item p id=\"\_txt\_main\" : Used to find the first line of lyrics, which had a different pattern in the html document.
+ \item (?<=$''$/).*?(?=$''$ class=$''$i\_icon) : Used to match the user name, since it always followed the tag with i\_icon in it.
+ \item p id=$''$\_txt\_main$''$ : Used to find the first line of lyrics, which had a different pattern in the html document.
  \item (?<=>).*(?=<br) : Used to match the first line of lyrics
- \item \^.+(?=<br) : Used to match all other lyrics, each of which had a line break tag after it.
- \item \^.*(?=</p) : Used to match the last line of lyrics, which breaks out of the processing loop.
+ \item \^{}.+(?=<br) : Used to match all other lyrics, each of which had a line break tag after it.
+ \item \^{}.*(?=</p) : Used to match the last line of lyrics, which breaks out of the processing loop.
 \end{enumerate}
 
 Just for convenience, a progress checker that kept track of the number of songs was introduced. Furthermore, a time delay was used to prevent too many requests being sent at once. This was a small random integer of seconds.
 
-Due to the sheer number of songs to crawl, it became necessary to distribute the processing over a number of computers. Another issue was that EWS lacks the required libraries to compile this code or even run the executable. As a result, a simplification needed to be made. This time, the crawler simply took the html files, so that they could all be processed on a machine with the required library files. In short, the original crawler was split into two parts. As a result, the following scheme was used:
+Due to the sheer number of songs to crawl, it became necessary to distribute the processing over a number of computers. Another issue was that EWS lacks the required libraries to compile this code or even run the executable. As a result, a simplification needed to be made. This time, the crawler simply took the html files, so that they could all be processed on a machine with the required library files. In short, the original crawler was split into two parts. As a result, the following scheme was used: (Note: Actual number of docs ended up being 141,303, but due to the site being updated, there were duplicate links.)
 
-\begin{enumerate}
- \item Pages 1-69,999: Zach's laptop
- \item Pages 70,000-79,999: Zach's laptop via ssh to EWS
- \item Pages 80,000-99,999: EWS machine no. 1
- \item Pages 100,000-141,357: EWS machine no. 2
-\end{enumerate}
+\begin{itemize}
+ \item Links 1-69,999: Zach's laptop
+ \item Links 70,000-79,999: Zach's laptop via ssh to EWS
+ \item Links 80,000-99,999: EWS machine no. 1
+ \item Links 100,000-141,357: EWS machine no. 2
+ \item Total curl commands required: 146,067
+\end{itemize}
 
 Assuming an up-to-date system as of July 31, 2014, the following libraries were used in the first crawler: (Note: the split up crawler uses a combination of these.)
 
@@ -188,11 +191,11 @@ The pages we took from Piapro were stored in UTF-8, but we had a good number of 
 
 Despite all efforts to keep our encodings straight, nothing could get Windows' command prompt, cmd, to behave as we would have wanted it to. As shown in Figure~\ref{fig:res/cmd_search_fail.png}, trying to look for the words 聞こえる and 愛 fail to produce results. We wonder if it is because the words we pass to the Java program through cmd are getting re-encoded and thereby messing up our results.
 
-\Figure[caption=Search Failure With cmd.exe]{res/cmd_search_fail.png}
+\Figure[caption="cmd.exe on Windows Failure"]{res/cmd_search_fail.png}
 
 While testing our project, we had access to Linux computers through SSH thanks to the University of Illinois at Urbana Champaign's Engineering WorkStations (UIUC's EWS). By using the Windows program called PuTTY to interact with the Java-based searching program, we got to see perfect results as shown in Figure~\ref{fig:res/putty_search_success.png}. It raises the question of where the encoding transformations could be going wrong since PuTTY appears to be a terminal application just like cmd.
 
-\Figure[caption=Search Success With PuTTY]{res/putty_search_success.png}
+\Figure[caption="PuTTY on Windows Success"]{res/putty_search_success.png}
 
 If we could output the search results to a web page, the encodings would be the problem of the web browser instead of the terminal. Because popular web browsers are intended to be used by people worldwide, they tend to support many text encoding formats, so there is may be better results by having a web browser interact with the Java program. We did not have the time to work on the web browser implementation though.
 
