@@ -98,7 +98,7 @@ The genre pages were grabbed by hand and the full list of albums were retrieved 
 
 Before beginning the crawling of the song pages, a method of getting rid of the unnecessary data was worked on. Without making too many assumptions about the format of the nearly 40,000 song pages Anime Lyrics dot Com had available, it was decided that the chunk of code above and below the song lists of each album page would be cropped out before being saved to the hard drive. As an extra precaution, Beautiful Soup was used to re-create valid HTML before saving the crawled album page. This was to ensure that later parsing of the song page would hopefully be consistent.
 
-During the development process, a total of three different systems had seen work with the codebase being worked on. Python 2 with Beautiful Soup 2 had ran the script on Windows 7, Windows 8, and Xubuntu (Linux). In doing so, non-cross-platform bugs surfaced in the code. Of particular interest was that the crawler would outright crash on Windows. The problem was that Beautiful Soup was capable of using a slew of different HTML parsers and it would select a default for you. The default was usually a bad one that shipped with Python, so on the Windows operating systems, the lxml library was installed as well. With all three systems using lxml for parsing the web pages, the code became consistent in behavior and cross-platform
+During the development process, a total of three different systems had seen work with the codebase being worked on. Python 2 with Beautiful Soup 2 had ran the script on Windows 7, Windows 8, and Xubuntu (Linux). In doing so, non-cross-platform bugs surfaced in the code. Of particular interest was that the crawler would outright crash on Windows. The problem was that Beautiful Soup was capable of using a slew of different HTML parsers and it would select a default for you. The default was usually a bad one that shipped with Python, so on the Windows operating systems, the lxml library was installed as well. With all three systems using lxml for parsing the web pages, the code became consistent in behavior and cross-platform.
 
 12,654 songs were scoured.
 
@@ -158,9 +158,11 @@ Compilation commands (Makefile):
  \item Zach's laptop (after EWS crawl): g++ -g -std=c++0x postParse.cpp -o postParse `pkg-config libxml++-2.6 --cflags glib-2.0 --libs glib-2.0`
 \end{enumerate}
 
+The actual time spent crawling across the four machines was around 3 days. Otherwise, on a single machine, a reasonable estimate would have been around 5-6 days. Had we performed this estimation sooner, we could have distributed the download and saved another day or so.
+
 \section{Results}
 
-Due to time constraints imposed by other classes that both team members had to deal with, only the bare minimum working product with rudimentary testing in the end. The search engine works from command line because there was not enough time left over to try to convert our project into a website. Out of all of the websites we wanted to crawl, only Piapro and the Japanese text uploaded to Anime Lyrics dot Com were saved. Altogether, we crawled around 60,000 pages.
+Due to time constraints imposed by other classes that both team members had to deal with, only the bare minimum working product with rudimentary testing in the end. The search engine works from command line because there was not enough time left over to try to convert our project into a website. Out of all of the websites we wanted to crawl, only Piapro and the Japanese text uploaded to Anime Lyrics dot Com were saved. So altogether, we crawled around 13,000+40,000+141,000+5000 = 199,000 pages.
 
 \subsection{Platform Dependent Results}
 
