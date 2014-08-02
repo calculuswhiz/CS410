@@ -147,7 +147,7 @@ In order to parse each of these HTML files, since the characters were in UTF-8, 
 
 Just for convenience, a progress checker that kept track of the number of songs was introduced. Furthermore, a time delay was used to prevent too many requests being sent at once. This was a small random integer of seconds.
 
-Due to the sheer number of songs to crawl, it became necessary to distribute the processing over a number of computers. Another issue was that EWS lacks the required libraries to compile this code or even run the executable. As a result, a simplification needed to be made. This time, the crawler simply took the html files, so that they could all be processed on a machine with the required library files. In short, the original crawler was split into two parts. As a result, the following scheme was used: (Note: Actual number of docs ended up being 141,303, but due to the site being updated, there were duplicate links.)
+Due to the sheer number of songs to crawl, it became necessary to distribute the processing over a number of computers. Another issue was that EWS lacks the required libraries to compile this code or even run the executable. As a result, a simplification needed to be made. This time, the crawler simply took the html files, so that they could all be processed on a machine with the required library files. In short, the original crawler was split into two parts. As a result, the following scheme was used: (Note: Ideally, the number of links would have been 141,303, but due to the site being updated, there were duplicate links.)
 
 \begin{itemize}
  \item Links 1-69,999: Zach's laptop
@@ -188,6 +188,8 @@ The actual time spent crawling across the four machines was around 3 days. Other
 \section{Results}
 
 Due to time constraints imposed by other classes that both team members had to deal with, only the bare minimum working product with rudimentary testing in the end. The search engine works from command line because there was not enough time left over to try to convert our project into a website. Out of all of the websites we wanted to crawl, only Piapro and the Japanese text uploaded to Anime Lyrics dot Com were saved. So altogether, we crawled around 13,000+40,000+141,000+5000 = 199,000 pages.
+
+Unfortunately, because the pre-processed HTML files are considerably larger than the post-processed ones, the EWS machines ran out of space. Due to this unforseen occurrence, we didn't think to save space by clearing out unnecessary files, and only around 1GB's worth of HTML files could be downloaded. In reality, the number of documents indexed only ended up being 127,223 instead of an estimated 154,000.
 
 \subsection{Platform Dependent Results}
 
