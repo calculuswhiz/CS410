@@ -17,9 +17,7 @@
 \pdfmapline{=unisong@Unicode@ <ipam.ttf}
 \begin{document}\sloppy % sloppy necessary here
 \begin{CJK}{UTF8}{zhsong}
-\title{JLyrics
-    \titlenote{Submitted as the final project for CS 410 Summer 2014.}
-}
+\title{JLyrics}
 
 \numberofauthors{2} % make sure you set this number
 \author{%
@@ -42,7 +40,7 @@ JLyrics is a search engine that finds the Japanese song that some lyrics came fr
 
 \section{Introduction}
 
-Our project was chosen to solve certain problems we had noticed in terms of information retrieval. For starters, looking up what song had a particular set of lyrics would not necessarily bring you to the same website storing those lyrics as another website also storing song lyrics. The information we want is sparsely distributed and uploaded. For example, if you do not know if the song originated from an anime or from a video game, you would not know whether to search an anime songs website or a video game songs website for the song. We wanted to combine the information sets of both or multiple websites so that you could be sure to run into the song you want to find.
+JLyrics is the name we gave our final project for CS 410. Our project was chosen to solve certain problems we had noticed in terms of information retrieval. For starters, looking up what song had a particular set of lyrics would not necessarily bring you to the same website storing those lyrics as another website also storing song lyrics. The information we want is sparsely distributed and uploaded. For example, if you do not know if the song originated from an anime or from a video game, you would not know whether to search an anime songs website or a video game songs website for the song. We wanted to combine the information sets of both or multiple websites so that you could be sure to run into the song you want to find.
 
 \section{Motivation}
 
@@ -279,10 +277,6 @@ simplified the bibtex reference names to ``manning-ir-book'' and
 
 Are there any interesting questions or findings that should be discussed?
 
-\section{Conclusion}
-
-Here's why our project is great, and this is what we told you in the paper.
-
 \section{Future Plans}
 
 Due to time constraints, we were unfortunately unable to implement some of the items that we wanted to get to.
@@ -298,6 +292,10 @@ Speaking of synonyms and the user, the user may lack adequate knowledge of the J
 We also wanted to crawl 東方同人ＣＤの歌詞 (Touhou Doujin CD no Kashi): \url{http://www31.atwiki.jp/touhoukashi/}. This is a giant database of songs that neither Anime Lyrics dot Com nor Piapro have. The Touhou fanbase has made many songs, so it would have given us a lot more data to work with. The creation of another crawler would have been a lot more work on its own, though.
 
 Lastly, the addition of Anime Lyrics dot Com's transliterated lyrics and translated lyrics would have made a good addition to our database. Currently, our data only consists of Japanese songs, which requires some degree of knowledge of the language to use. With this, English speakers could search a English translation of the song as well.
+
+\section{Conclusion}
+
+Our project successfully indexes and searches a large database of Japanese songs. While it is regrettable that we could not also get to the Touhou Doujin CD site, we were able to get most of Piapro and all of Anime Lyrics dot Com's Japanese lyrics into the index. That is to say, this project is scalable to larger data sets. We have seen that for each of these sites, crawlers had to be adapted to retrieve the required lyrics from them. After crawling, it was necessary to generate readable documents to be indexed via parsing. After finally getting all 127,000 of the documents, we ran the Goose indexer on the data set with a Japanese Analyzer. Lastly, we performed search tests. While there were limitations on its efficacy, we could show that the searching worked reasonably well. We also discussed possibilities of expansion, whether with larger data sets, capability, or user-friendliness.
 
 \section*{Acknowledgments}
 
