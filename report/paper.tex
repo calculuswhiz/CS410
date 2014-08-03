@@ -194,6 +194,12 @@ In order to parse each of these HTML files, since the characters were in UTF-8, 
 
 The C++ code made extensive use of lookaheads and lookbehinds to facilitate writing directly to the documents. These were determined by observation of the HTML pages.
 
+\section{Indexing and Searching}
+
+A search engine will have nothing to search for if the docs are not indexed. Everyone in CS 410 had the background required to build a search engine, but for the summer semester, there was not enough time to implement an indexer and a searcher. In order to alleviate this and allow us to understand search engines in general, the professor had us all do week-long homework problems using a program he developed. This program, Goose, was a Java application built around Lucene. Lucene is an API for implementing an indexer and a searcher. In order to save development time, we used Goose as the base to JLyrics.
+
+Goose was built to work with English text, so it would not work with our data set right out of the box. The only change we had to make was to discover how to replace the self-made text analyzer in Goose with a JapaneseAnalyzer that comes with Lucene. This JapaneseAnalyzer was a library originally called Kuromoji. Kuromoji was donated to Lucene and became a part of Lucene's API \cite{kuromoji-donate}. Using JapaneseAnalyzer, we were able to create a working indexer and searcher.
+
 \section{Results}
 
 Due to time constraints imposed by other classes that both team members had to deal with, only the bare minimum working product with rudimentary testing in the end. The search engine works from command line because there was not enough time left over to try to convert our project into a website. Out of all of the websites we wanted to crawl, only Piapro and the Japanese text uploaded to Anime Lyrics dot Com were saved. So altogether, we crawled around 13,000+40,000+141,000+5000 = 199,000 pages.
@@ -212,7 +218,7 @@ In order to understand the problem with mojibake, a discussion of character enco
 
 Meanwhile, Japan was making headway in computing but was in dire need of a standard way to represent Japanese characters. The format called Shift-JIS (Shift Japanese Industrial Standards) was invented. It was created for representing Japanese characters such as kanji, hiragana, and katakana in standardized bit patterns, but it was also capable of representing Latin characters (called romaji / ローマ字 / roman characters in Japanese). This format solved Japan's rendering problems, but it was not a very cooperative encoding format when interpreted by programs and operating systems not expecting the Shift-JIS format.
 
-As time went on, a new standard of expressing characters as strings of bytes appeared called Unicode. It proposed blueprints of how one should represent characters form any and all alphabets in a set length of bits. Unicode is an abstract concept. The most popular encoding of Unicode to this day is UTF-8 (Unicode Transformation Format 8). Many Japanese developers are content with Shift-JIS even though the Shift-JIS encoding can't handle non-Japanese and non-Latin characters, so there is a struggle involved with dealing with Japanese text such that one must check if the text was encoded in Shift-JIS, UTF-8, or something else.
+As time went on, a new standard of expressing characters as strings of bytes appeared called Unicode. It proposed blueprints of how one should represent characters form any and all alphabets in a set length of bits. Unicode is an abstract concept \cite{unicode-abstract}. The most popular encoding of Unicode to this day is UTF-8 (Unicode Transformation Format 8). Many Japanese developers are content with Shift-JIS even though the Shift-JIS encoding can't handle non-Japanese and non-Latin characters, so there is a struggle involved with dealing with Japanese text such that one must check if the text was encoded in Shift-JIS, UTF-8, or something else.
 
 To illustrate just how drastically important keeping our encoding scheme straight is, a demonstration of various encodings of the same Japanese word is shown using Python 3.
 
@@ -269,11 +275,9 @@ The lesson learned here is that perhaps we were expecting too much out of search
 
 \section{Related Work}
 
-What similar things are already out there? You can cite things like
-this~\cite{manning-ir-book} and this~\cite{zhai-smoothing}. I got the second
-reference bibtex from \url{http://dl.acm.org/citation.cfm?id=984322}. I just
-simplified the bibtex reference names to ``manning-ir-book'' and
-``zhai-smoothing''. Also, did you notice that URL and citations were clickable?
+In terms of related work, Anime Lyrics dot Com did precisely what we have attempted to do. Their site conglomerates Japanese music lyrics from multiple venues so that users can search for lyrics in Japanese, romaji, or English. The amount of data they have is proportional to the amount of manpower put into the site. We wanted to have a more automated system so that people could stay up-to-date with popular music scenes such as Vocaloid music uploaded to Piapro or Touhou remix music detailed on the Touhou Doujin CD no Kashi Wikipedia site. To that extent, we could arguably state that we are following in the footsteps of Anime Lyrics dot Com while simultaneously using their work.
+
+%What similar things are already out there? You can cite things like this~\cite{manning-ir-book} and this~\cite{zhai-smoothing}. I got the second reference bibtex from \url{http://dl.acm.org/citation.cfm?id=984322}. I just simplified the bibtex reference names to ``manning-ir-book'' and ``zhai-smoothing''. Also, did you notice that URL and citations were clickable?
 
 \section{Discussion}
 
@@ -316,8 +320,8 @@ Sean Massung: Professor of CS 410: Information Retrieval Systems. Also the devel
 \item Final Report: Larry, Zach
 \end{itemize}
 
-%\bibliographystyle{plain}
-%\bibliography{bib} % "bib" is the name of the .bib file
+\bibliographystyle{plain}
+\bibliography{bib} % "bib" is the name of the .bib file
 
 \end{CJK}
 \end{document}
