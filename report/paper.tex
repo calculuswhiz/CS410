@@ -86,7 +86,7 @@ Before we could make a search engine, we would need to have material to search t
 
 \Figure[caption={Site Logo}]{res/logo_animelyrics.png}
 
-To begin with, deciding how best to crawl Anime Lyrics dot Com took a considerable. The site's multi-layered structure will be explained shortly. The home page lists all of the genres of music stored on Anime Lyrics dot Com. Despite what their name may imply, they also store lyrics for dance, dance CD, doujin, video game, and J-Pop music. Each genre has an index.htm file listing all of the albums belonging to that category. Each album name points to an index.htm in a deeper directory. The album page at this area lists all of the songs in that album. The songs are in the same directory as the album, but they do not have the name index.htm, so they stand out in the address bar. The name index.htm is a default name that the web browser will try to access, so the URL usually omits this. By consequence, we only see a ".htm" URL when looking at a song. This was how Anime Lyrics dot Com was designed as seen from a surfer on their web site.
+To begin with, deciding how best to crawl Anime Lyrics dot Com took a considerable. The site's multi-layered structure will be explained shortly. The home page lists all of the genres of music stored on Anime Lyrics dot Com. Despite what their name may imply, they also store lyrics for dance, dance CD, doujin, video game, and J-Pop music. Each genre has an index.htm file listing all of the albums belonging to that category. Each album name points to an index.htm in a deeper directory. The album page at this area lists all of the songs in that album. The songs are in the same directory as the album, but they do not have the name index.htm, so they stand out in the address bar. The name index.htm is a default name that the web browser will try to access, so the URL usually omits this. By consequence, we only see a ``.htm'' URL when looking at a song. This was how Anime Lyrics dot Com was designed as seen from a surfer on their web site.
 
 In summary, the general structure of Anime Lyrics dot Com can be graphically seen in Figure~\ref{fig:res/animelyrics_format.png}. All folders shown have an index.htm in them, but the album folders all hold song web pages as well.
 
@@ -102,7 +102,7 @@ Before beginning the crawling of the song pages, a method of getting rid of the 
 
 During the development process, bugs were discovered when attempting to run the code on different systems. A total of four different systems had seen work with the code base being worked on. Python 2 with Beautiful Soup 2 had ran the script on Windows 7, Windows 8, Xubuntu (Linux), and Scientific Linux (Linux). In doing so, non-cross-platform bugs surfaced in the code. Of particular interest was that the crawler would outright crash on Windows. The problem was that Beautiful Soup was capable of using a slew of different HTML parsers and it would select a default for you. The default was usually a bad one that shipped with Python, so on the Windows operating systems, the lxml library was installed as well. With all three systems using lxml for parsing the web pages, the code became consistent in behavior and cross-platform. The Scientific Linux system happened to be the UIUC EWS machines. The University did not give users root privileges, so it was too much of a hassle to install lxml there. The code base was at least managed to get running on three of the four systems.
 
-With all album pages crawled, the song links needed to be extracted. This was tricky because Anime Lyrics dot Com does not store its lyrics with Japanese text in the same page as where it stores the translated and/or transliterated text. For example, one of the songs from K-On! named "NO, Thank You!" was popular enough to have its original Japanese, a translation, and a transliteration uploaded. However, the transliteration and translation are found at this URL:
+With all album pages crawled, the song links needed to be extracted. This was tricky because Anime Lyrics dot Com does not store its lyrics with Japanese text in the same page as where it stores the translated and/or transliterated text. For example, one of the songs from K-On! named ``NO, Thank You!'' was popular enough to have its original Japanese, a translation, and a transliteration uploaded. However, the transliteration and translation are found at this URL:
 
 \url{http://www.animelyrics.com/anime/kons2/nothankyou.htm}
 
@@ -110,7 +110,7 @@ Whereas the Japanese text could be found at this URL:
 
 \url{http://www.animelyrics.com/anime/kons2/nothankyou.jis}
 
-All songs had a transliteration by default, but a check would be needed to done to see if Japanese text was available. The method devised was to look at the album page for a particular image next to the song name. This image was a picture of the Japanese word 漢字 (kanji meaning Chinese characters). Its tool tip text says "Japanese Text available" implying that a separate Japanese lyrics page was on the server. An example of this is shown in Figure~\ref{fig:res/kon_album.png}. This is an album list from K-On! as shown on Anime Lyrics dot Com. The song "Our MAGIC" does not have Japanese text, but the song "NO, Thank You!" does.
+All songs had a transliteration by default, but a check would be needed to done to see if Japanese text was available. The method devised was to look at the album page for a particular image next to the song name. This image was a picture of the Japanese word 漢字 (kanji meaning Chinese characters). Its tool tip text says ``Japanese Text available'' implying that a separate Japanese lyrics page was on the server. An example of this is shown in Figure~\ref{fig:res/kon_album.png}. This is an album list from K-On! as shown on Anime Lyrics dot Com. The song ``Our MAGIC'' does not have Japanese text, but the song ``NO, Thank You!'' does.
 
 \Figure[caption={K-On! Album List}]{res/kon_album.png}
 
@@ -201,9 +201,32 @@ The URL would give searchers a traceback to the source of where we got the song 
 
 \subsection{Anime Lyrics dot Com}
 
+Document creation in Anime Lyrics dot Com was a tough thing to do. The song title was easy to get because it was inside of a header (<h1>) tag, but its translated title had to be extracted using some string searching. The title was always transliterated, but if there was a translation available, it would appear on a new line in the source code preceded by a line break tag (<br>). The language of the documents were hard coded to represent ``Japanese'' because, due to deadlines, only the Japanese songs were parsed into docs. The URL to the song's source was regenerated based on the path to the song stored from the indexed files.
+
+The hardest part of generating the docs by far were getting the lyrics. Anime Lyrics dot Com implemented a method by which you could hover your mouse over a kanji and see details about it. This was accomplished by surrounding absolutely every single kanji character in a song's lyrics by anchor tags. Beautiful Soup was used to transform every anchor tag found in the lyrics into just the text within the anchor tag. For example, the site may have the following coded into the HTML: <a class="supernote-hover-kanji0" name="kanji">渇</a>. Beautiful Soup would transform all of that into simply 渇. In doing so, we would be able to remove all junk formatting from the lyrics and be able to store it in plain text format for our docs.
+
+In practice, this was not enough to produce good docs. Due to extra spacing put in between kanji in the source code of Anime Lyrics dot Com web pages, the text without formatting had a huge amount of extra white space left behind. This was a problem because every word in Japanese formed by kanji compounds such as 明日 would appear as 明 日. We could not expect a search engine or indexer to properly recognize that as a word that was a kanji compound. The naive solution would have been to remove all spacing between characters, but this solution backfired. When the song had mixed Japanese and English lyrics, the English lyrics would become squished. For example, the song Shigunaru from the anime 07-Ghost has one line of lyrics that goes ``潰れたくないのなら BEGIN TO MOVE ON SHINING''. Using the naive regex that removed spaces between any two characters, this would become ``潰れたくないのならBEGINTOMOVEONSHINING''. A more strict solution needed to be developed.
+
+We needed to find a way to remove all white space between two \emph{Japanese} characters, but ignore white space between other characters. Python 2's regex library was not expressive enough to deal with Japanese characters, but there was a library in the works intended to replace Python's current regex API for a more comprehensive one. Specifically, the ``regex'' module could be downloaded from PyPi to replace Python's ``re'' module. This allowed referencing whole character sets such as all katakana characters. A string representing all Japanese characters for a regex was produced with the following Python code.
+
+\begin{lstlisting}[language=Python]
+RE_JAPANESE_GLYPH = '[\p{Hiragana}' +
+    '\p{Katakana}\u4e00-\u9faf\W\u3005]'
+\end{lstlisting}
+
+Using this regex string to find a single Japanese character, we create our regex that looks for white space between two Japanese characters.
+
+\begin{lstlisting}[language=Python]
+spaced_jp_regex = re.compile(
+    RE_JAPANESE_GLYPH + '\s+' +
+    RE_JAPANESE_GLYPH, re.UNICODE)
+\end{lstlisting}
+
+This regex will match ``明 日'', but fail on the following three cases: ``日　O'', ``N 日'', and ``N O''. We need this because the regex will fail on ``BEGIN TO'' and therefore not turn the string into ``BEGINTO''. By using this regex continuously on the crawled web page until the regex no longer finds matches, all of the lyrics will appear exactly as they were intended to be. This produced the lyrics for the song. With the lyrics on hand, we could produce the indexable docs for Anime Lyrics dot Com.
+
 \subsection{Piapro}
 
-Turning the crawled pages from Piapro into indexable docs was a simple process. The artist was simple to retrieve, the lyrics were not particularly mangled with formatting, and the language byte we would store would unconditionally represent "Japanese".
+Turning the crawled pages from Piapro into indexable docs was a simple process. The artist was simple to retrieve, the lyrics were not particularly mangled with formatting, and the language byte we would store would unconditionally represent ``Japanese''.
 
 \section{Results}
 
@@ -213,9 +236,9 @@ Unfortunately, because the pre-processed HTML files are considerably larger than
 
 \subsection{Platform Dependent Results}
 
-Unfortunately, the project would not work under Windows. Windows support was a feature that we assumed that we would get for free just because we used the cross-platform programming language Java to do our indexing and searching. Naively attempting to run the searcher in Windows will most likely evoke mojibake. 文字化け (mojibake meaning "changed characters") is the result of an encoding scheme being unable to properly represent a bit pattern.
+Unfortunately, the project would not work under Windows. Windows support was a feature that we assumed that we would get for free just because we used the cross-platform programming language Java to do our indexing and searching. Naively attempting to run the searcher in Windows will most likely evoke mojibake. 文字化け (mojibake meaning ``changed characters'') is the result of an encoding scheme being unable to properly represent a bit pattern.
 
-In order to understand the problem with mojibake, a discussion of character encodings will need to be presented. A single character such as the letter "a" must be represented in a format that a computer can understand. At its absolute lowest level, a computer can only store data in the form of ones and zeros. The number system that contains only these two numbers is called binary. However, the string of bits we choose to encode a particular character in is completely arbitrary. To that extent, the ASCII (American Standard Code for Information Interchange) format was invented so that everyone programming on computers would follow the same format for encoding a set of characters. For example, "a" is represented in ASCII format as "0110 0001". ASCII was invented in the very young days of computing, so there was no intention of supporting alphabets and character sets beyond what Latin characters could represent (for example, English).
+In order to understand the problem with mojibake, a discussion of character encodings will need to be presented. A single character such as the letter ``a'' must be represented in a format that a computer can understand. At its absolute lowest level, a computer can only store data in the form of ones and zeros. The number system that contains only these two numbers is called binary. However, the string of bits we choose to encode a particular character in is completely arbitrary. To that extent, the ASCII (American Standard Code for Information Interchange) format was invented so that everyone programming on computers would follow the same format for encoding a set of characters. For example, ``a'' is represented in ASCII format as ``0110 0001''. ASCII was invented in the very young days of computing, so there was no intention of supporting alphabets and character sets beyond what Latin characters could represent (for example, English).
 
 Meanwhile, Japan was making headway in computing but was in dire need of a standard way to represent Japanese characters. The format called Shift-JIS (Shift Japanese Industrial Standards) was invented. It was created for representing Japanese characters such as kanji, hiragana, and katakana in standardized bit patterns, but it was also capable of representing Latin characters (called romaji / ローマ字 / roman characters in Japanese). This format solved Japan's rendering problems, but it was not a very cooperative encoding format when interpreted by programs and operating systems not expecting the Shift-JIS format.
 
@@ -256,7 +279,7 @@ There were a few things we tried out to see how effective our search engine was.
 
 \subsection{Against Google Custom Search}
 
-A milestone we wanted to achieve with this project was to beat Google Custom Search using our vertical search engine. Anime Lyrics dot Com has a built-in search engine on their web page, but it is simply a Google Custom Search. It would be identical to searching on Google for "site:animelyrics.com" followed by the song lyrics. Our test was performed by choosing a specific song and some lyrics from it. Afterwards, we would change one of the words to see if the search engine still picks up the original song.
+A milestone we wanted to achieve with this project was to beat Google Custom Search using our vertical search engine. Anime Lyrics dot Com has a built-in search engine on their web page, but it is simply a Google Custom Search. It would be identical to searching on Google for ``site:animelyrics.com'' followed by the song lyrics. Our test was performed by choosing a specific song and some lyrics from it. Afterwards, we would change one of the words to see if the search engine still picks up the original song.
 
 Our chosen song was シリウス (Sirius) from the KILL la KILL sound track. The lyrics would be the very first line: 誰かが勝手に決めた (someone decided on their own that...). The bastardized line would be this: 誰かが勝手に急に (someone had immediately, without permission did...).
 
