@@ -1,0 +1,235 @@
+\documentclass{beamer}
+\usepackage{easyfig}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage{CJK,CJKspace,CJKpunct}
+\pdfmapline{=unisong@Unicode@ <ipam.ttf}
+\easyfigdefault{placement={!htb}, max width=\textwidth, max height=.65\textheight, keepaspectratio}
+\begin{document}
+\begin{CJK}{UTF8}{zhsong}
+\begin{frame}
+\frametitle{JLyrics}
+Larry Resnik and Zach Bian
+
+CS 410: Introduction to Text Information Systems
+
+August 2014
+\end{frame}
+\begin{frame}
+\frametitle{Purpose}
+%\framesubtitle{A bit more information about this}
+
+\begin{center}
+\begin{tabular}{l r}
+Some Lyrics & Idiots who respond with "Dream" keep appearing \\
+\hline
+Title & Slow Motion \\
+Artist & Pinochio P \\
+Lyrics URL & http://piapro.jp/t/t30H \\
+&\\
+&\\
+Some Lyrics & 「夢」と答えるボケを続けて \\
+\hline
+Title & すろぉもぉしょん \\
+Artist & ピノキオP \\
+Lyrics URL & http://piapro.jp/t/t30H \\
+\end{tabular}
+\end{center}
+\end{frame}
+\begin{frame}
+\frametitle{Motivation}
+\framesubtitle{Finding More Music}
+\Figure[caption={Music by Pinochio P}]{pres-res/piapro-pinochio.jpg}
+\end{frame}
+\begin{frame}
+\frametitle{Motivation}
+\framesubtitle{Learning Japanese}
+\Figure[caption={Rocket Player Showing Embedded Lyrics}]{res/rocket-player.png}
+\end{frame}
+\begin{frame}
+\frametitle{Existing Work}
+\framesubtitle{Anime Lyrics dot Com}
+\Figure[caption={Anime Songs}]{pres-res/animelyrics.jpg}
+\end{frame}
+\begin{frame}
+\frametitle{Existing Work}
+\framesubtitle{Anime Lyrics dot Com}
+\Figure[caption={Search for ``どのくらい知っている?''}]{pres-res/al_search0.jpg}
+\end{frame}
+\begin{frame}
+\frametitle{Existing Work}
+\framesubtitle{Anime Lyrics dot Com}
+\Figure[caption={Search for ``どのくらい知っている?''}]{pres-res/al_search1.png}
+\end{frame}
+\begin{frame}
+\frametitle{Existing Work}
+\framesubtitle{Anime Lyrics dot Com}
+\Figure[caption={Search for ``どのくらい知っている?''}]{pres-res/al_search2.png}
+\end{frame}
+\begin{frame}
+\frametitle{Target Song Sources}
+\framesubtitle{Niconico Douga}
+\Figure[caption={Niconico Douga 24-Hour Ranking}, max height=.45\textheight]{pres-res/niconico0.jpg}
+
+Most Representative of "Otaku" Interests.
+\end{frame}
+\begin{frame}
+\frametitle{Target Song Sources}
+\framesubtitle{Niconico Douga}
+\Figure[caption={Niconico Douga 24-Hour Ranking}, max height=.45\textheight]{pres-res/niconico1.jpg}
+
+Daily Rankings
+\end{frame}
+\begin{frame}
+\frametitle{Target Song Sources}
+\framesubtitle{Niconico Douga}
+\Figure[caption={Niconico Douga 24-Hour Ranking}, max height=.45\textheight]{pres-res/niconico2.jpg}
+
+Anime, Games, and Pictures Category
+\end{frame}
+\begin{frame}
+\frametitle{Target Song Sources}
+\framesubtitle{Niconico Douga}
+\Figure[caption={Niconico Douga 24-Hour Ranking}, max height=.45\textheight]{pres-res/niconico3.jpg}
+
+Sub-Categories: Anime, Games, Touhou, THE iDOLM@STER
+\end{frame}
+\begin{frame}
+\frametitle{Target Song Sources}
+\framesubtitle{Niconico Douga}
+\Figure[caption={Niconico Douga 24-Hour Ranking}, max height=.45\textheight]{pres-res/niconico4.jpg}
+
+Category: Entertainment and Music
+
+Sub-Categories: Tried to Sing, Vocaloid, Niconico Indies
+\end{frame}
+\begin{frame}
+\frametitle{Crawling}
+\framesubtitle{Piapro}
+\Figure[caption={Piapro Lyrics Section}]{pres-res/crawl_piapro0.png}
+\end{frame}
+\begin{frame}
+\frametitle{Crawling}
+\framesubtitle{Piapro}
+\Figure[caption={Piapro Lyrics Section}]{pres-res/crawl_piapro1.png}
+\end{frame}
+\begin{frame}
+\frametitle{Crawling}
+\framesubtitle{Piapro}
+\Figure[caption={Piapro Lyrics Section}]{pres-res/crawl_piapro2.png}
+\end{frame}
+\begin{frame}
+\frametitle{Crawling}
+\framesubtitle{Piapro}
+\Figure[caption={Piapro Lyrics Section: Out of Bounds}]{pres-res/crawl_piapro3.png}
+\end{frame}
+\begin{frame}
+\frametitle{Parse}
+\framesubtitle{Piapro}
+\Figure[caption={Lyrics to Pinocchio P's "Slow Motion"}]{pres-res/parse_piapro0.png}
+\end{frame}
+\begin{frame}
+\frametitle{Crawling}
+\framesubtitle{Anime Lyrics dot Com}
+\Figure[caption={Top Level: Genres}]{pres-res/crawl_al0.png}
+\end{frame}
+\begin{frame}
+\frametitle{Crawling}
+\framesubtitle{Anime Lyrics dot Com}
+\Figure[caption={Second Level: Albums}]{pres-res/crawl_al1.png}
+\end{frame}
+\begin{frame}
+\frametitle{Crawling}
+\framesubtitle{Anime Lyrics dot Com}
+\Figure[caption={Third Level: Songs}]{pres-res/crawl_al2.png}
+\end{frame}
+\begin{frame}
+\frametitle{Parsing}
+\framesubtitle{Anime Lyrics dot Com}
+\Figure[caption={Bottom Level: Individual Song}, max height=.45\textheight]{pres-res/parse_al0.png}
+
+Translated and Transliterated Lyrics
+\end{frame}
+\begin{frame}
+\frametitle{Parsing}
+\framesubtitle{Anime Lyrics dot Com}
+\Figure[caption={Bottom Level: Individual Song}, max height=.45\textheight]{pres-res/parse_al1.png}
+
+Japanese Lyrics
+\end{frame}
+\begin{frame}
+\frametitle{Indexing and Searching}
+
+Goose: Base program using Lucene
+
+Kuromoji: Japanese Analyzer
+\end{frame}
+\begin{frame}
+\frametitle{Parse}
+\framesubtitle{Piapro}
+\Figure[caption={Lyrics to Pinocchio P's "Slow Motion"}]{pres-res/parse_piapro0.png}
+\end{frame}
+\begin{frame}
+\frametitle{Indexing and Searching}
+\framesubtitle{Piapro}
+\Figure[caption={Source Code of Slow Motion Lyrics}]{pres-res/indexing_piapro0.png}
+\end{frame}
+\begin{frame}
+\frametitle{Indexing and Searching}
+\framesubtitle{Anime Lyrics dot Com}
+\Figure[caption={Japanese Lyrics}]{pres-res/indexing0.png}
+\end{frame}
+\begin{frame}
+\frametitle{Indexing and Searching}
+\framesubtitle{Anime Lyrics dot Com}
+\Figure[caption={Source Code}]{pres-res/indexing1.png}
+\end{frame}
+\begin{frame}
+\frametitle{Indexing and Searching}
+\framesubtitle{Anime Lyrics dot Com}
+\Figure[caption={HTML Stripping}]{pres-res/indexing2.png}
+\end{frame}
+\begin{frame}
+\frametitle{Indexing and Searching}
+\framesubtitle{Anime Lyrics dot Com}
+
+RE\_JAPANESE\_GLYPH = '[$ \backslash $p{Hiragana}$ \backslash $p{Katakana}$ \backslash $u4e00-$ \backslash $u9faf$ \backslash $W$ \backslash $u3005]'
+
+\vspace*{1em}
+spaced\_jp\_regex = re.compile(
+    RE\_JAPANESE\_GLYPH + '$ \backslash $s+' +
+    RE\_JAPANESE\_GLYPH, re.UNICODE)
+
+\end{frame}
+\begin{frame}
+\frametitle{Indexing and Searching}
+\framesubtitle{Anime Lyrics dot Com}
+\Figure[caption={Proper Doc Format}]{pres-res/indexing3.png}
+\end{frame}
+\begin{frame}
+\frametitle{Final Product}
+\Figure[caption={JLyrics Running on Linux}]{res/410_post_Piapro.png}
+\end{frame}
+\begin{frame}
+\frametitle{Final Product}
+\Figure[caption={JLyrics Running on PuTTY}]{res/putty_search_success.png}
+\end{frame}
+\begin{frame}
+\frametitle{Final Product}
+\Figure[caption={JLyrics Running on Windows CMD}]{res/cmd_search_fail.png}
+\end{frame}
+\begin{frame}
+\frametitle{Future Work}
+\begin{itemize}
+\item Windows support
+\item Web page searching
+\item Dataset expansion
+\begin{itemize}
+\item Anime Lyrics: translations and transliterations
+\item Touhou Doujin CD no Kashi
+\end{itemize}
+\item Romaji $ \leftrightarrow $ Japanese text conversion \\ (synonyms such as toru, とる, and　取る)
+\end{itemize}
+\end{frame}
+\end{CJK}
+\end{document}
